@@ -36,6 +36,11 @@ Preferred communication style: Simple, everyday language.
 - `/api/orders/track` - Order tracking by email or order ID
 - `/api/contact` - Contact form submissions
 - `/api/chat` - Live chat message handling
+- `/api/reviews/:productId` - Get approved reviews for a product
+- `/api/reviews` - Submit a new review (requires approval)
+- `/api/admin/login` - Admin authentication
+- `/api/admin/products` - Product CRUD operations (requires admin auth)
+- `/api/admin/reviews` - Review moderation (requires admin auth)
 
 **Request Processing**: 
 - JSON body parsing with raw buffer capture for webhook verification
@@ -49,8 +54,9 @@ Preferred communication style: Simple, everyday language.
 **Database**: PostgreSQL accessed via Neon serverless driver (`@neondatabase/serverless`). The connection string is provided through the `DATABASE_URL` environment variable.
 
 **ORM**: Drizzle ORM with schema definitions in `shared/schema.ts`. The schema includes:
-- `products` table: Product catalog with name, description, price, category, type, and media URLs
+- `products` table: Product catalog with name, description, price, category, type, imageUrl, and videoUrl
 - `orders` table: Order records with IMVU ID, email, payment details, transaction tracking, and status
+- `reviews` table: Customer product reviews with rating, text, and approval status
 - `chatMessages` table: Customer support chat messages
 - `contactForms` table: Contact form submissions
 
@@ -60,10 +66,17 @@ Preferred communication style: Simple, everyday language.
 
 ### Authentication and Authorization
 
-No user authentication system is currently implemented. The application operates as an open e-commerce platform where users can:
+**Admin Authentication**: Session-based authentication for admin dashboard access:
+- Admin password stored in `ADMIN_PASSWORD` environment variable
+- Session tokens stored in-memory Set (server/routes.ts)
+- Bearer token authentication for all admin API endpoints
+- Admin can manage products (create, update, delete) and reviews (approve, reject)
+
+**Customer Access**: The application operates as an open e-commerce platform where users can:
 - Browse products without login
 - Place orders by providing IMVU ID and email
 - Track orders using order ID or email as identifiers
+- Submit product reviews (require admin approval before appearing to other customers)
 
 ### External Dependencies
 
@@ -104,3 +117,16 @@ No user authentication system is currently implemented. The application operates
 **Order Flow**: Orders generate unique IDs server-side and support tracking without user accounts, relying on email/order ID lookup for status checking.
 
 **Chat System**: Simple message storage without real-time WebSocket connections; uses polling or manual refresh for message updates.
+
+**Product Management**: Admin dashboard provides full CRUD operations:
+- Create new products with all details (name, description, price, category, type, images, videos)
+- Edit existing product information
+- Delete products from catalog
+- All changes immediately reflected in customer-facing store
+
+**Review System**: Manual review approval prevents spam and fake reviews:
+- Customers submit reviews with rating (1-5 stars) and text
+- Reviews default to `approved=false` and are hidden from customers
+- Admin can approve (publish) or reject (delete) reviews via dashboard
+- Only approved reviews count toward product ratings and appear to customers
+- Review aggregations (average rating, count) only include approved reviews for accuracy
