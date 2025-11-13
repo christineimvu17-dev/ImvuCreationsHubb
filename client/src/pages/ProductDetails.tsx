@@ -9,7 +9,7 @@ import { PaymentDialog } from "@/components/PaymentDialog";
 import { ReviewForm } from "@/components/ReviewForm";
 import { ReviewList } from "@/components/ReviewList";
 import type { ProductWithRatings } from "@shared/schema";
-import { Star, ArrowLeft } from "lucide-react";
+import { Star, ArrowLeft, Check, Gift, Monitor, Smartphone, User, ShieldCheck, Home } from "lucide-react";
 import triggerImage from "@assets/generated_images/Premium_trigger_product_icon_bce9e655.png";
 import roomImage from "@assets/generated_images/Virtual_room_product_preview_0f22295e.png";
 import giftTriggerImage from "@assets/generated_images/Gifting_trigger_icon_d54ee4bc.png";
@@ -90,22 +90,32 @@ export default function ProductDetails() {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
           <div className="space-y-4">
-            <Card className="neon-border overflow-hidden">
-              <div className="relative aspect-square">
+            <Card className="neon-border overflow-hidden bg-black/40 backdrop-blur-sm shadow-[0_0_30px_rgba(168,85,247,0.15)]">
+              <div className="relative aspect-square bg-gradient-to-b from-purple-900/20 to-black">
                 <img
-                  src={getImageForProduct(product.imageUrl)}
+                  src={product.imageUrl.startsWith('/') ? product.imageUrl : getImageForProduct(product.imageUrl)}
                   alt={product.name}
                   className="w-full h-full object-cover"
                   data-testid="img-product"
                 />
-                <Badge className="absolute top-4 right-4 neon-glow-sm">
-                  {product.type === "permanent" ? "Permanent" : "Gifting"}
-                </Badge>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
+                
+                <div className="absolute top-4 right-4 flex gap-2">
+                  <Badge className="bg-purple-500/90 hover:bg-purple-500 text-white font-bold px-4 py-2 text-base shadow-lg shadow-purple-500/50" data-testid="badge-price">
+                    ${(product.price / 100).toFixed(0)}
+                  </Badge>
+                  {product.isGift && (
+                    <Badge className="bg-pink-500/90 hover:bg-pink-500 text-white font-bold px-4 py-2 text-base shadow-lg shadow-pink-500/50 flex items-center gap-2" data-testid="badge-gift">
+                      <Gift className="w-4 h-4" />
+                      GIFT
+                    </Badge>
+                  )}
+                </div>
               </div>
             </Card>
 
             {reviewCount > 0 && (
-              <Card className="neon-border bg-card/50">
+              <Card className="neon-border bg-black/40 backdrop-blur-sm">
                 <CardContent className="p-4">
                   <div className="flex items-center gap-3">
                     <div className="flex gap-0.5">
@@ -137,20 +147,19 @@ export default function ProductDetails() {
               </h1>
               
               <div className="flex items-center gap-3 mb-6">
-                <Badge variant="outline" className="text-base">
+                <Badge variant="outline" className="text-base border-purple-500/50">
                   {product.category === "triggers" ? "Premium Triggers" : 
                    product.category === "rooms" ? "Sex Rooms" : "Bundle Offers"}
                 </Badge>
               </div>
-
-              <div className="text-4xl font-bold text-primary neon-text mb-6" data-testid="text-product-price">
-                ${(product.price / 100).toFixed(2)}
-              </div>
             </div>
 
-            <Card className="neon-border">
+            <Card className="neon-border bg-black/40 backdrop-blur-sm">
               <CardHeader>
-                <CardTitle className="font-exo2">Product Description</CardTitle>
+                <CardTitle className="font-exo2 flex items-center gap-2">
+                  <Check className="w-5 h-5 text-purple-400" />
+                  Description
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-gray-300 leading-relaxed" data-testid="text-product-description">
@@ -159,28 +168,76 @@ export default function ProductDetails() {
               </CardContent>
             </Card>
 
-            <Card className="neon-border">
+            {product.features && product.features.length > 0 && (
+              <Card className="neon-border bg-black/40 backdrop-blur-sm">
+                <CardHeader>
+                  <CardTitle className="font-exo2 flex items-center gap-2">
+                    <Check className="w-5 h-5 text-purple-400" />
+                    Features
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ul className="space-y-2">
+                    {product.features.map((feature, index) => (
+                      <li key={index} className="flex items-start gap-2" data-testid={`feature-${index}`}>
+                        <Check className="w-4 h-4 text-purple-400 flex-shrink-0 mt-0.5" />
+                        <span className="text-gray-300">{feature}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </CardContent>
+              </Card>
+            )}
+
+            <Card className="neon-border bg-black/40 backdrop-blur-sm">
               <CardHeader>
-                <CardTitle className="font-exo2">Product Details</CardTitle>
+                <CardTitle className="font-exo2 flex items-center gap-2">
+                  <ShieldCheck className="w-5 h-5 text-purple-400" />
+                  Requirements
+                </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Category:</span>
-                  <span className="font-medium capitalize">{product.category}</span>
+                {product.loginMethod && (
+                  <div className="flex items-center gap-3" data-testid="requirement-login">
+                    <User className="w-5 h-5 text-purple-400" />
+                    <div>
+                      <div className="text-sm text-gray-400">Login Method</div>
+                      <div className="font-medium">{product.loginMethod}</div>
+                    </div>
+                  </div>
+                )}
+                <div className="flex items-center gap-3" data-testid="requirement-vip">
+                  <ShieldCheck className="w-5 h-5 text-purple-400" />
+                  <div>
+                    <div className="text-sm text-gray-400">VIP Required</div>
+                    <div className="font-medium">{product.vipRequired ? "Yes" : "No"}</div>
+                  </div>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Type:</span>
-                  <span className="font-medium capitalize">{product.type}</span>
+                <div className="flex items-center gap-3" data-testid="requirement-room">
+                  <Home className="w-5 h-5 text-purple-400" />
+                  <div>
+                    <div className="text-sm text-gray-400">Sex Room Needed</div>
+                    <div className="font-medium">{product.sexRoomNeeded ? "Yes" : "No"}</div>
+                  </div>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Product ID:</span>
-                  <span className="font-mono text-sm">{product.id}</span>
+                <div className="border-t border-purple-500/20 pt-3 mt-3">
+                  <div className="text-sm text-gray-400 mb-2">Platform Support</div>
+                  <div className="flex gap-4">
+                    <div className={`flex items-center gap-2 ${product.pcSupport ? 'text-green-400' : 'text-gray-600'}`} data-testid="support-pc">
+                      <Monitor className="w-5 h-5" />
+                      <span className="font-medium">PC</span>
+                    </div>
+                    <div className={`flex items-center gap-2 ${product.mobileSupport ? 'text-green-400' : 'text-gray-600'}`} data-testid="support-mobile">
+                      <Smartphone className="w-5 h-5" />
+                      <span className="font-medium">Mobile</span>
+                    </div>
+                  </div>
                 </div>
               </CardContent>
             </Card>
 
             <Button
-              className="w-full h-14 text-lg neon-glow"
+              className="w-full h-14 text-lg bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold shadow-lg shadow-purple-500/50 neon-glow"
               onClick={() => setPaymentDialogOpen(true)}
               data-testid="button-buy-now"
             >

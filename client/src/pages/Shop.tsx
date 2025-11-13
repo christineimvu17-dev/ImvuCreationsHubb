@@ -6,7 +6,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
 import type { ProductWithRatings } from "@shared/schema";
-import { Star } from "lucide-react";
+import { Monitor, Smartphone, Check, Gift } from "lucide-react";
 import triggerImage from "@assets/generated_images/Premium_trigger_product_icon_bce9e655.png";
 import roomImage from "@assets/generated_images/Virtual_room_product_preview_0f22295e.png";
 import giftTriggerImage from "@assets/generated_images/Gifting_trigger_icon_d54ee4bc.png";
@@ -30,70 +30,75 @@ export default function Shop() {
   const bundleProducts = products.filter(p => p.category === "bundles");
 
   const ProductCard = ({ product }: { product: ProductWithRatings }) => {
-    const averageRating = product.averageRating || 0;
-    const reviewCount = product.reviewCount || 0;
+    const features = product.features || [];
+    const displayFeatures = features.slice(0, 5);
 
     return (
-      <Card className="neon-border hover-elevate transition-all duration-300 overflow-hidden">
-        <CardHeader className="p-0">
+      <Card className="neon-border hover-elevate active-elevate-2 transition-all duration-300 overflow-hidden bg-black/40 backdrop-blur-sm shadow-[0_0_30px_rgba(168,85,247,0.15)]">
+        <CardHeader className="p-0 relative">
           <Link href={`/product/${product.id}`}>
-            <div className="relative aspect-square overflow-hidden bg-card cursor-pointer">
+            <div className="relative aspect-square overflow-hidden bg-gradient-to-b from-purple-900/20 to-black cursor-pointer">
               <img
-                src={getImageForProduct(product.imageUrl)}
+                src={product.imageUrl.startsWith('/') ? product.imageUrl : getImageForProduct(product.imageUrl)}
                 alt={product.name}
-                className="w-full h-full object-cover transition-transform duration-300 hover:scale-110"
+                className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
                 data-testid={`img-product-${product.id}`}
               />
-              <Badge className="absolute top-3 right-3 neon-glow-sm">
-                {product.type === "permanent" ? "Permanent" : "Gifting"}
-              </Badge>
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
+              
+              <div className="absolute top-3 right-3 flex gap-2">
+                <Badge className="bg-purple-500/90 hover:bg-purple-500 text-white font-bold px-3 py-1 text-sm shadow-lg shadow-purple-500/50" data-testid={`badge-price-${product.id}`}>
+                  ${(product.price / 100).toFixed(0)}
+                </Badge>
+                {product.isGift && (
+                  <Badge className="bg-pink-500/90 hover:bg-pink-500 text-white font-bold px-3 py-1 text-sm shadow-lg shadow-pink-500/50 flex items-center gap-1" data-testid={`badge-gift-${product.id}`}>
+                    <Gift className="w-3 h-3" />
+                    GIFT
+                  </Badge>
+                )}
+              </div>
             </div>
           </Link>
         </CardHeader>
-        <CardContent className="p-6">
-          <CardTitle className="text-lg mb-2">{product.name}</CardTitle>
-          <p className="text-sm text-muted-foreground mb-4 line-clamp-2">{product.description}</p>
+        <CardContent className="p-5">
+          <CardTitle className="text-lg font-exo2 mb-2 text-white">{product.name}</CardTitle>
+          <p className="text-sm text-gray-400 mb-4 line-clamp-2">{product.description}</p>
           
-          <div className="flex items-center gap-2 mb-3">
-            {reviewCount > 0 ? (
-              <>
-                <div className="flex gap-0.5">
-                  {[1, 2, 3, 4, 5].map((star) => (
-                    <Star
-                      key={star}
-                      className={`w-4 h-4 ${
-                        star <= Math.round(averageRating)
-                          ? "fill-yellow-400 text-yellow-400"
-                          : "text-gray-600"
-                      }`}
-                    />
-                  ))}
-                </div>
-                <span className="text-xs text-gray-400">
-                  ({reviewCount} {reviewCount === 1 ? "review" : "reviews"})
-                </span>
-              </>
-            ) : (
-              <span className="text-xs text-gray-400 flex items-center gap-1">
-                <Star className="w-3 h-3" />
-                No reviews yet
-              </span>
-            )}
-          </div>
-          
-          <div className="text-2xl font-bold text-primary neon-text">
-            ${(product.price / 100).toFixed(2)}
-          </div>
+          {displayFeatures.length > 0 && (
+            <ul className="space-y-2 mb-4">
+              {displayFeatures.map((feature, index) => (
+                <li key={index} className="flex items-start gap-2 text-sm">
+                  <Check className="w-4 h-4 text-purple-400 flex-shrink-0 mt-0.5" />
+                  <span className="text-gray-300">{feature}</span>
+                </li>
+              ))}
+            </ul>
+          )}
         </CardContent>
-        <CardFooter className="p-6 pt-0">
+        <CardFooter className="p-5 pt-0 flex flex-col gap-3">
           <Link href={`/product/${product.id}`} className="w-full">
             <Button
-              className="w-full neon-glow"
+              className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold shadow-lg shadow-purple-500/50 neon-glow"
               data-testid={`button-buy-${product.id}`}
             >
-              View Details
+              Buy Now
             </Button>
           </Link>
+          
+          <div className="flex items-center justify-center gap-3 text-gray-400">
+            {product.pcSupport && (
+              <div className="flex items-center gap-1" data-testid={`icon-pc-${product.id}`}>
+                <Monitor className="w-4 h-4" />
+                <span className="text-xs">PC</span>
+              </div>
+            )}
+            {product.mobileSupport && (
+              <div className="flex items-center gap-1" data-testid={`icon-mobile-${product.id}`}>
+                <Smartphone className="w-4 h-4" />
+                <span className="text-xs">Mobile</span>
+              </div>
+            )}
+          </div>
         </CardFooter>
       </Card>
     );

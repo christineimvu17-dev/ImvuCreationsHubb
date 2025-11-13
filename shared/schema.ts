@@ -12,6 +12,13 @@ export const products = pgTable("products", {
   type: text("type").notNull(),
   imageUrl: text("image_url").notNull(),
   videoUrl: text("video_url"),
+  isGift: boolean("is_gift").notNull().default(false),
+  features: text("features").array(),
+  loginMethod: text("login_method"),
+  vipRequired: boolean("vip_required").notNull().default(false),
+  sexRoomNeeded: boolean("sex_room_needed").notNull().default(false),
+  pcSupport: boolean("pc_support").notNull().default(true),
+  mobileSupport: boolean("mobile_support").notNull().default(true),
 });
 
 export const insertProductSchema = createInsertSchema(products).omit({
