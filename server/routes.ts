@@ -1,4 +1,5 @@
 import type { Express } from "express";
+import express from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import multer from "multer";
@@ -110,6 +111,8 @@ async function uploadToDiscord(webhookUrl: string, file: Buffer, filename: strin
 }
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  app.use("/uploaded_assets", express.static(path.join(process.cwd(), "uploaded_assets")));
+
   app.get("/api/products", async (req, res) => {
     try {
       const products = await storage.getProducts();
@@ -452,11 +455,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.error("File upload error:", error);
       res.status(500).json({ error: error.message || "Failed to upload file" });
     }
-  });
-
-  app.use("/uploaded_assets", (req, res, next) => {
-    const express = require("express");
-    express.static(path.join(process.cwd(), "uploaded_assets"))(req, res, next);
   });
 
   const httpServer = createServer(app);
