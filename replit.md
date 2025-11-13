@@ -54,7 +54,12 @@ Preferred communication style: Simple, everyday language.
 **Database**: PostgreSQL accessed via Neon serverless driver (`@neondatabase/serverless`). The connection string is provided through the `DATABASE_URL` environment variable.
 
 **ORM**: Drizzle ORM with schema definitions in `shared/schema.ts`. The schema includes:
-- `products` table: Product catalog with name, description, price, category, type, imageUrl, and videoUrl
+- `products` table: Product catalog with:
+  * Basic info: name, description, price (in cents), category, type
+  * Media: imageUrl, videoUrl
+  * Features: isGift (boolean), features (text array for bullet points)
+  * Requirements: loginMethod, vipRequired, sexRoomNeeded
+  * Platform support: pcSupport, mobileSupport
 - `orders` table: Order records with IMVU ID, email, payment details, transaction tracking, and status
 - `reviews` table: Customer product reviews with rating, text, and approval status
 - `chatMessages` table: Customer support chat messages
@@ -94,7 +99,11 @@ Preferred communication style: Simple, everyday language.
 - Instagram: @imvu_trustedshop
 - Discord community server for customer support
 
-**Image Assets**: Product images stored in `/attached_assets/generated_images/` directory with static file serving.
+**Image Assets**: 
+- Generated images stored in `/attached_assets/generated_images/` directory
+- Uploaded product media stored in `/uploaded_assets/products/` directory
+- Static file serving configured at `/uploaded_assets` path for admin uploads
+- Multer disk storage for file uploads with 10MB limit
 
 **Development Tools**:
 - Replit-specific plugins for development environment (cartographer, dev banner, runtime error modal)
@@ -119,10 +128,24 @@ Preferred communication style: Simple, everyday language.
 **Chat System**: Simple message storage without real-time WebSocket connections; uses polling or manual refresh for message updates.
 
 **Product Management**: Admin dashboard provides full CRUD operations:
-- Create new products with all details (name, description, price, category, type, images, videos)
+- Create new products with comprehensive details:
+  * Basic information (name, description, price, category, type)
+  * Media uploads (images, videos) via file upload or URL
+  * Features list (displayed as bullet points on product cards)
+  * Requirements (login method, VIP status, sex room needed)
+  * Platform support (PC, Mobile)
+  * Gift item flag (displays pink GIFT badge)
 - Edit existing product information
 - Delete products from catalog
 - All changes immediately reflected in customer-facing store
+
+**Product Display**: Product cards feature gaming-style design:
+- Price badge in top-right corner (purple neon glow)
+- Pink "GIFT" badge for gift items
+- Bullet points list showing up to 5 features
+- Neon purple-to-pink gradient "Buy Now" button
+- PC and Mobile compatibility icons
+- Soft purple neon shadows matching screenshot aesthetic
 
 **Review System**: Manual review approval prevents spam and fake reviews:
 - Customers submit reviews with rating (1-5 stars) and text
