@@ -4,9 +4,19 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { PaymentDialog } from "@/components/PaymentDialog";
+import { ReviewForm } from "@/components/ReviewForm";
+import { ReviewList } from "@/components/ReviewList";
 import { useQuery } from "@tanstack/react-query";
-import type { Product } from "@shared/schema";
+import type { ProductWithRatings } from "@shared/schema";
+import { Star } from "lucide-react";
 import triggerImage from "@assets/generated_images/Premium_trigger_product_icon_bce9e655.png";
 import roomImage from "@assets/generated_images/Virtual_room_product_preview_0f22295e.png";
 import giftTriggerImage from "@assets/generated_images/Gifting_trigger_icon_d54ee4bc.png";
@@ -21,54 +31,101 @@ const getImageForProduct = (imageUrl: string) => {
 };
 
 export default function Shop() {
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [selectedProduct, setSelectedProduct] = useState<ProductWithRatings | null>(null);
   const [paymentDialogOpen, setPaymentDialogOpen] = useState(false);
+  const [reviewDialogOpen, setReviewDialogOpen] = useState(false);
 
-  const { data: products = [], isLoading } = useQuery<Product[]>({
+  const { data: products = [], isLoading } = useQuery<ProductWithRatings[]>({
     queryKey: ["/api/products"],
   });
 
-  const handleBuyNow = (product: Product) => {
+  const handleBuyNow = (product: ProductWithRatings) => {
     setSelectedProduct(product);
     setPaymentDialogOpen(true);
+  };
+
+  const handleViewReviews = (product: ProductWithRatings) => {
+    setSelectedProduct(product);
+    setReviewDialogOpen(true);
   };
 
   const triggerProducts = products.filter(p => p.category === "triggers");
   const roomProducts = products.filter(p => p.category === "rooms");
   const bundleProducts = products.filter(p => p.category === "bundles");
 
-  const ProductCard = ({ product }: { product: Product }) => (
-    <Card className="neon-border hover-elevate transition-all duration-300 overflow-hidden">
-      <CardHeader className="p-0">
-        <div className="relative aspect-square overflow-hidden bg-card">
-          <img
-            src={getImageForProduct(product.imageUrl)}
-            alt={product.name}
-            className="w-full h-full object-cover transition-transform duration-300 hover:scale-110"
-          />
-          <Badge className="absolute top-3 right-3 neon-glow-sm">
-            {product.type === "permanent" ? "Permanent" : "Gifting"}
-          </Badge>
-        </div>
-      </CardHeader>
-      <CardContent className="p-6">
-        <CardTitle className="text-lg mb-2">{product.name}</CardTitle>
-        <p className="text-sm text-muted-foreground mb-4">{product.description}</p>
-        <div className="text-2xl font-bold text-primary neon-text">
-          ${(product.price / 100).toFixed(2)}
-        </div>
-      </CardContent>
-      <CardFooter className="p-6 pt-0">
-        <Button
-          className="w-full neon-glow"
-          onClick={() => handleBuyNow(product)}
-          data-testid={`button-buy-${product.id}`}
-        >
-          Buy Now
-        </Button>
-      </CardFooter>
-    </Card>
-  );
+  const ProductCard = ({ product }: { product: ProductWithRatings }) => {
+    const averageRating = product.averageRating || 0;
+    const reviewCount = product.reviewCount || 0;
+
+    return (
+      <Card className="neon-border hover-elevate transition-all duration-300 overflow-hidden">
+        <CardHeader className="p-0">
+          <div className="relative aspect-square overflow-hidden bg-card">
+            <img
+              src={getImageForProduct(product.imageUrl)}
+              alt={product.name}
+              className="w-full h-full object-cover transition-transform duration-300 hover:scale-110"
+            />
+            <Badge className="absolute top-3 right-3 neon-glow-sm">
+              {product.type === "permanent" ? "Permanent" : "Gifting"}
+            </Badge>
+          </div>
+        </CardHeader>
+        <CardContent className="p-6">
+          <CardTitle className="text-lg mb-2">{product.name}</CardTitle>
+          <p className="text-sm text-muted-foreground mb-4">{product.description}</p>
+          
+          <div className="flex items-center gap-2 mb-3">
+            {reviewCount > 0 ? (
+              <>
+                <div className="flex gap-0.5">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <Star
+                      key={star}
+                      className={`w-4 h-4 ${
+                        star <= Math.round(averageRating)
+                          ? "fill-yellow-400 text-yellow-400"
+                          : "text-gray-600"
+                      }`}
+                    />
+                  ))}
+                </div>
+                <button
+                  onClick={() => handleViewReviews(product)}
+                  className="text-xs text-purple-400 hover:text-purple-300 transition-colors"
+                  data-testid={`button-view-reviews-${product.id}`}
+                >
+                  ({reviewCount} {reviewCount === 1 ? "review" : "reviews"})
+                </button>
+              </>
+            ) : (
+              <button
+                onClick={() => handleViewReviews(product)}
+                className="text-xs text-purple-400 hover:text-purple-300 transition-colors flex items-center gap-1"
+                data-testid={`button-view-reviews-${product.id}`}
+              >
+                <Star className="w-3 h-3" />
+                Be the first to review
+              </button>
+            )}
+          </div>
+          
+          <div className="text-2xl font-bold text-primary neon-text">
+            ${(product.price / 100).toFixed(2)}
+          </div>
+        </CardContent>
+        <CardFooter className="p-6 pt-0">
+          <Button
+            className="w-full neon-glow"
+            onClick={() => handleBuyNow(product)}
+            data-testid={`button-buy-${product.id}`}
+          >
+            Buy Now
+          </Button>
+        </CardFooter>
+      </Card>
+    );
+  };
 
   return (
     <div className="min-h-screen py-12">
@@ -145,11 +202,33 @@ export default function Shop() {
       </div>
 
       {selectedProduct && (
-        <PaymentDialog
-          open={paymentDialogOpen}
-          onOpenChange={setPaymentDialogOpen}
-          product={selectedProduct}
-        />
+        <>
+          <PaymentDialog
+            open={paymentDialogOpen}
+            onOpenChange={setPaymentDialogOpen}
+            product={selectedProduct}
+          />
+          <Dialog open={reviewDialogOpen} onOpenChange={setReviewDialogOpen}>
+            <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-black/95 border-purple-500/30">
+              <DialogHeader>
+                <DialogTitle className="font-orbitron text-2xl neon-text">
+                  {selectedProduct.name}
+                </DialogTitle>
+                <DialogDescription>
+                  Customer reviews and feedback
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-6 mt-4">
+                <ReviewList productId={selectedProduct.id} />
+                <ReviewForm
+                  productId={selectedProduct.id}
+                  productName={selectedProduct.name}
+                  onSuccess={() => setReviewDialogOpen(false)}
+                />
+              </div>
+            </DialogContent>
+          </Dialog>
+        </>
       )}
     </div>
   );
