@@ -13,6 +13,34 @@ const upload = multer({
 const PAYMENT_WEBHOOK_URL = process.env.PAYMENT_WEBHOOK_URL || "";
 const STATUS_WEBHOOK_URL = process.env.STATUS_WEBHOOK_URL || "";
 
+if (!process.env.ADMIN_PASSWORD) {
+  console.error("FATAL: ADMIN_PASSWORD environment variable is not set");
+  console.error("Please set ADMIN_PASSWORD in your environment to enable admin access");
+  process.exit(1);
+}
+
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
+
+const adminSessions = new Set<string>();
+
+function generateSessionToken(): string {
+  return Math.random().toString(36).substring(2) + Date.now().toString(36);
+}
+
+function requireAdmin(req: any, res: any, next: any) {
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+  
+  const token = authHeader.substring(7);
+  if (!adminSessions.has(token)) {
+    return res.status(401).json({ error: "Invalid or expired session" });
+  }
+  
+  next();
+}
+
 async function sendDiscordWebhook(url: string, content: string, embeds?: any[]) {
   try {
     const response = await fetch(url, {
@@ -194,7 +222,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/admin/orders", async (req, res) => {
+  app.post("/api/admin/login", async (req, res) => {
+    try {
+      const { password } = req.body;
+      
+      if (password === ADMIN_PASSWORD) {
+        const token = generateSessionToken();
+        adminSessions.add(token);
+        res.json({ success: true, token });
+      } else {
+        res.status(401).json({ error: "Invalid password" });
+      }
+    } catch (error) {
+      res.status(500).json({ error: "Login failed" });
+    }
+  });
+
+  app.post("/api/admin/logout", async (req, res) => {
+    try {
+      const authHeader = req.headers.authorization;
+      if (authHeader && authHeader.startsWith("Bearer ")) {
+        const token = authHeader.substring(7);
+        adminSessions.delete(token);
+      }
+      res.json({ success: true });
+    } catch (error) {
+      res.status(500).json({ error: "Logout failed" });
+    }
+  });
+
+  app.get("/api/admin/orders", requireAdmin, async (req, res) => {
     try {
       const status = req.query.status as string | undefined;
       const orders = await storage.getAllOrders(status);
@@ -204,7 +261,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.patch("/api/admin/orders/:id", async (req, res) => {
+  app.patch("/api/admin/orders/:id", requireAdmin, async (req, res) => {
     try {
       const { id } = req.params;
       const { status } = req.body;

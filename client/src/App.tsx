@@ -10,6 +10,7 @@ import Shop from "@/pages/Shop";
 import About from "@/pages/About";
 import TrackOrder from "@/pages/TrackOrder";
 import Contact from "@/pages/Contact";
+import AdminDashboard from "@/pages/AdminDashboard";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { ChatWidget } from "@/components/ChatWidget";
@@ -22,6 +23,7 @@ function Router() {
       <Route path="/about" component={About} />
       <Route path="/track" component={TrackOrder} />
       <Route path="/contact" component={Contact} />
+      <Route path="/admin" component={AdminDashboard} />
       <Route component={NotFound} />
     </Switch>
   );
