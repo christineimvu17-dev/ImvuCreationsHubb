@@ -8,13 +8,19 @@ import {
   type InsertChatMessage,
   type ContactForm,
   type InsertContactForm,
+  type Review,
+  type InsertReview,
+  type Admin,
+  type InsertAdmin,
   products as productsTable,
   orders as ordersTable,
   chatMessages as chatMessagesTable,
   contactForms as contactFormsTable,
+  reviews as reviewsTable,
+  admins as adminsTable,
 } from "@shared/schema";
 import { drizzle } from "drizzle-orm/neon-http";
-import { eq, desc, ilike } from "drizzle-orm";
+import { eq, desc, ilike, sql as sqlOp } from "drizzle-orm";
 import { randomUUID } from "crypto";
 
 const sql = neon(process.env.DATABASE_URL!);
@@ -29,12 +35,19 @@ export interface IStorage {
   getOrderById(id: string): Promise<Order | undefined>;
   getOrderByOrderId(orderId: string): Promise<Order | undefined>;
   getOrderByEmail(email: string): Promise<Order | undefined>;
+  getAllOrders(status?: string): Promise<Order[]>;
   updateOrderStatus(id: string, status: string): Promise<Order | undefined>;
   
   createChatMessage(message: InsertChatMessage): Promise<ChatMessage>;
   getChatMessages(): Promise<ChatMessage[]>;
   
   createContactForm(form: InsertContactForm): Promise<ContactForm>;
+  
+  createReview(review: InsertReview): Promise<Review>;
+  getReviewsByProductId(productId: string): Promise<Review[]>;
+  
+  getAdminByUsername(username: string): Promise<Admin | undefined>;
+  createAdmin(admin: InsertAdmin): Promise<Admin>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -123,6 +136,49 @@ export class DatabaseStorage implements IStorage {
       .values(form)
       .returning();
     return newForm;
+  }
+
+  async getAllOrders(status?: string): Promise<Order[]> {
+    if (status) {
+      return db
+        .select()
+        .from(ordersTable)
+        .where(eq(ordersTable.status, status))
+        .orderBy(desc(ordersTable.createdAt));
+    }
+    return db.select().from(ordersTable).orderBy(desc(ordersTable.createdAt));
+  }
+
+  async createReview(review: InsertReview): Promise<Review> {
+    const [newReview] = await db
+      .insert(reviewsTable)
+      .values(review)
+      .returning();
+    return newReview;
+  }
+
+  async getReviewsByProductId(productId: string): Promise<Review[]> {
+    return db
+      .select()
+      .from(reviewsTable)
+      .where(eq(reviewsTable.productId, productId))
+      .orderBy(desc(reviewsTable.createdAt));
+  }
+
+  async getAdminByUsername(username: string): Promise<Admin | undefined> {
+    const [admin] = await db
+      .select()
+      .from(adminsTable)
+      .where(eq(adminsTable.username, username));
+    return admin;
+  }
+
+  async createAdmin(admin: InsertAdmin): Promise<Admin> {
+    const [newAdmin] = await db
+      .insert(adminsTable)
+      .values(admin)
+      .returning();
+    return newAdmin;
   }
 }
 
