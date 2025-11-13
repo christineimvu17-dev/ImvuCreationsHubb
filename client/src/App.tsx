@@ -7,6 +7,7 @@ import { useEffect } from "react";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/Home";
 import Shop from "@/pages/Shop";
+import ProductDetails from "@/pages/ProductDetails";
 import About from "@/pages/About";
 import TrackOrder from "@/pages/TrackOrder";
 import Contact from "@/pages/Contact";
@@ -20,6 +21,7 @@ function Router() {
     <Switch>
       <Route path="/" component={Home} />
       <Route path="/shop" component={Shop} />
+      <Route path="/product/:id" component={ProductDetails} />
       <Route path="/about" component={About} />
       <Route path="/track" component={TrackOrder} />
       <Route path="/contact" component={Contact} />

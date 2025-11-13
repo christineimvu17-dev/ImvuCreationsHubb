@@ -33,10 +33,6 @@ export function PaymentDialog({ open, onOpenChange, product }: PaymentDialogProp
     window.open("https://discord.gg/NR4Z9zeBW2", "_blank");
   };
 
-  const handleCopyPayPalLink = () => {
-    navigator.clipboard.writeText("https://www.paypal.com/ncp/payment/JEX4CVZ4QFCVW");
-  };
-
   const handlePayNow = () => {
     window.open("https://www.paypal.com/ncp/payment/JEX4CVZ4QFCVW", "_blank");
   };
@@ -98,14 +94,6 @@ export function PaymentDialog({ open, onOpenChange, product }: PaymentDialogProp
                       className="neon-glow"
                     >
                       Pay Now
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={handleCopyPayPalLink}
-                      data-testid="button-copy-paypal"
-                    >
-                      Copy Payment Link
                     </Button>
                     <Button
                       onClick={handlePayPalClick}
