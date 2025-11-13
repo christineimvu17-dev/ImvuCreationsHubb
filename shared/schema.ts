@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { pgTable, text, varchar, integer, timestamp } from "drizzle-orm/pg-core";
+import { pgTable, text, varchar, integer, timestamp, boolean } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -90,11 +90,13 @@ export const reviews = pgTable("reviews", {
   email: text("email").notNull(),
   rating: integer("rating").notNull(),
   reviewText: text("review_text").notNull(),
+  approved: boolean("approved").notNull().default(false),
   createdAt: timestamp("created_at").notNull().default(sql`now()`),
 });
 
 export const insertReviewSchema = createInsertSchema(reviews).omit({
   id: true,
+  approved: true,
   createdAt: true,
 }).extend({
   rating: z.number().min(1).max(5),

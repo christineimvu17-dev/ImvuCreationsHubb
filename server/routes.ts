@@ -3,7 +3,7 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import multer from "multer";
 import { randomBytes } from "crypto";
-import { insertOrderSchema, insertChatMessageSchema, insertContactFormSchema, insertReviewSchema } from "@shared/schema";
+import { insertOrderSchema, insertChatMessageSchema, insertContactFormSchema, insertReviewSchema, insertProductSchema } from "@shared/schema";
 import { fromZodError } from "zod-validation-error";
 
 const upload = multer({ 
@@ -305,6 +305,84 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({ success: true, order });
     } catch (error) {
       res.status(500).json({ error: "Failed to update order status" });
+    }
+  });
+
+  app.post("/api/admin/products", requireAdmin, async (req, res) => {
+    try {
+      const validatedData = insertProductSchema.parse(req.body);
+      const product = await storage.createProduct(validatedData);
+      res.json({ success: true, product });
+    } catch (error: any) {
+      if (error.name === "ZodError") {
+        const validationError = fromZodError(error);
+        return res.status(400).json({ error: validationError.message });
+      }
+      res.status(500).json({ error: "Failed to create product" });
+    }
+  });
+
+  app.patch("/api/admin/products/:id", requireAdmin, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const product = await storage.updateProduct(id, req.body);
+      
+      if (!product) {
+        return res.status(404).json({ error: "Product not found" });
+      }
+
+      res.json({ success: true, product });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to update product" });
+    }
+  });
+
+  app.delete("/api/admin/products/:id", requireAdmin, async (req, res) => {
+    try {
+      const { id } = req.params;
+      await storage.deleteProduct(id);
+      res.json({ success: true });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to delete product" });
+    }
+  });
+
+  app.get("/api/admin/reviews", requireAdmin, async (req, res) => {
+    try {
+      const status = req.query.status as string | undefined;
+      let reviews;
+      
+      if (status === "pending") {
+        reviews = await storage.getPendingReviews();
+      } else {
+        reviews = await storage.getAllReviews();
+      }
+      
+      res.json(reviews);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch reviews" });
+    }
+  });
+
+  app.patch("/api/admin/reviews/:id", requireAdmin, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { action } = req.body;
+
+      if (action === "approve") {
+        const review = await storage.approveReview(id);
+        if (!review) {
+          return res.status(404).json({ error: "Review not found" });
+        }
+        res.json({ success: true, review });
+      } else if (action === "reject") {
+        await storage.rejectReview(id);
+        res.json({ success: true });
+      } else {
+        res.status(400).json({ error: "Invalid action" });
+      }
+    } catch (error) {
+      res.status(500).json({ error: "Failed to update review" });
     }
   });
 

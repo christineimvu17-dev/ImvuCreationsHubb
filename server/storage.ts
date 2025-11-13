@@ -31,6 +31,8 @@ export interface IStorage {
   getProducts(): Promise<ProductWithRatings[]>;
   getProductById(id: string): Promise<Product | undefined>;
   createProduct(product: InsertProduct): Promise<Product>;
+  updateProduct(id: string, product: Partial<InsertProduct>): Promise<Product | undefined>;
+  deleteProduct(id: string): Promise<void>;
   
   createOrder(order: InsertOrder): Promise<Order>;
   getOrderById(id: string): Promise<Order | undefined>;
@@ -46,6 +48,10 @@ export interface IStorage {
   
   createReview(review: InsertReview): Promise<Review>;
   getReviewsByProductId(productId: string): Promise<Review[]>;
+  getAllReviews(): Promise<Review[]>;
+  getPendingReviews(): Promise<Review[]>;
+  approveReview(id: string): Promise<Review | undefined>;
+  rejectReview(id: string): Promise<void>;
   
   getAdminByUsername(username: string): Promise<Admin | undefined>;
   createAdmin(admin: InsertAdmin): Promise<Admin>;
@@ -63,8 +69,8 @@ export class DatabaseStorage implements IStorage {
         type: productsTable.type,
         imageUrl: productsTable.imageUrl,
         videoUrl: productsTable.videoUrl,
-        averageRating: sqlOp<number>`COALESCE(AVG(${reviewsTable.rating}), 0)`,
-        reviewCount: sqlOp<number>`COUNT(${reviewsTable.id})`,
+        averageRating: sqlOp<number>`COALESCE(AVG(CASE WHEN ${reviewsTable.approved} = true THEN ${reviewsTable.rating} END), 0)`,
+        reviewCount: sqlOp<number>`COUNT(CASE WHEN ${reviewsTable.approved} = true THEN 1 END)`,
       })
       .from(productsTable)
       .leftJoin(reviewsTable, eq(productsTable.id, reviewsTable.productId))
@@ -91,6 +97,19 @@ export class DatabaseStorage implements IStorage {
       .values(product)
       .returning();
     return newProduct;
+  }
+
+  async updateProduct(id: string, product: Partial<InsertProduct>): Promise<Product | undefined> {
+    const [updatedProduct] = await db
+      .update(productsTable)
+      .set(product)
+      .where(eq(productsTable.id, id))
+      .returning();
+    return updatedProduct;
+  }
+
+  async deleteProduct(id: string): Promise<void> {
+    await db.delete(productsTable).where(eq(productsTable.id, id));
   }
 
   async createOrder(order: InsertOrder): Promise<Order> {
@@ -183,8 +202,36 @@ export class DatabaseStorage implements IStorage {
     return db
       .select()
       .from(reviewsTable)
-      .where(eq(reviewsTable.productId, productId))
+      .where(sqlOp`${reviewsTable.productId} = ${productId} AND ${reviewsTable.approved} = true`)
       .orderBy(desc(reviewsTable.createdAt));
+  }
+
+  async getAllReviews(): Promise<Review[]> {
+    return db
+      .select()
+      .from(reviewsTable)
+      .orderBy(desc(reviewsTable.createdAt));
+  }
+
+  async getPendingReviews(): Promise<Review[]> {
+    return db
+      .select()
+      .from(reviewsTable)
+      .where(eq(reviewsTable.approved, false))
+      .orderBy(desc(reviewsTable.createdAt));
+  }
+
+  async approveReview(id: string): Promise<Review | undefined> {
+    const [approvedReview] = await db
+      .update(reviewsTable)
+      .set({ approved: true })
+      .where(eq(reviewsTable.id, id))
+      .returning();
+    return approvedReview;
+  }
+
+  async rejectReview(id: string): Promise<void> {
+    await db.delete(reviewsTable).where(eq(reviewsTable.id, id));
   }
 
   async getAdminByUsername(username: string): Promise<Admin | undefined> {
