@@ -2,6 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import multer from "multer";
+import { randomBytes } from "crypto";
 import { insertOrderSchema, insertChatMessageSchema, insertContactFormSchema, insertReviewSchema } from "@shared/schema";
 import { fromZodError } from "zod-validation-error";
 
@@ -24,7 +25,7 @@ const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
 const adminSessions = new Set<string>();
 
 function generateSessionToken(): string {
-  return Math.random().toString(36).substring(2) + Date.now().toString(36);
+  return randomBytes(32).toString('hex');
 }
 
 function requireAdmin(req: any, res: any, next: any) {
