@@ -1,6 +1,7 @@
 import { neon } from "@neondatabase/serverless";
 import {
   type Product,
+  type ProductWithRatings,
   type InsertProduct,
   type Order,
   type InsertOrder,
@@ -20,14 +21,14 @@ import {
   admins as adminsTable,
 } from "@shared/schema";
 import { drizzle } from "drizzle-orm/neon-http";
-import { eq, desc, ilike, sql as sqlOp } from "drizzle-orm";
+import { eq, desc, ilike, sql as sqlOp, avg, count } from "drizzle-orm";
 import { randomUUID } from "crypto";
 
 const sql = neon(process.env.DATABASE_URL!);
 const db = drizzle(sql);
 
 export interface IStorage {
-  getProducts(): Promise<Product[]>;
+  getProducts(): Promise<ProductWithRatings[]>;
   getProductById(id: string): Promise<Product | undefined>;
   createProduct(product: InsertProduct): Promise<Product>;
   
@@ -51,8 +52,29 @@ export interface IStorage {
 }
 
 export class DatabaseStorage implements IStorage {
-  async getProducts(): Promise<Product[]> {
-    return db.select().from(productsTable);
+  async getProducts(): Promise<ProductWithRatings[]> {
+    const productsWithRatings = await db
+      .select({
+        id: productsTable.id,
+        name: productsTable.name,
+        description: productsTable.description,
+        price: productsTable.price,
+        category: productsTable.category,
+        type: productsTable.type,
+        imageUrl: productsTable.imageUrl,
+        videoUrl: productsTable.videoUrl,
+        averageRating: sqlOp<number>`COALESCE(AVG(${reviewsTable.rating}), 0)`,
+        reviewCount: sqlOp<number>`COUNT(${reviewsTable.id})`,
+      })
+      .from(productsTable)
+      .leftJoin(reviewsTable, eq(productsTable.id, reviewsTable.productId))
+      .groupBy(productsTable.id);
+
+    return productsWithRatings.map(p => ({
+      ...p,
+      averageRating: Number(p.averageRating) || 0,
+      reviewCount: Number(p.reviewCount) || 0,
+    }));
   }
 
   async getProductById(id: string): Promise<Product | undefined> {

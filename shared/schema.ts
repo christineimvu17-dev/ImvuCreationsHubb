@@ -21,6 +21,11 @@ export const insertProductSchema = createInsertSchema(products).omit({
 export type InsertProduct = z.infer<typeof insertProductSchema>;
 export type Product = typeof products.$inferSelect;
 
+export type ProductWithRatings = Product & {
+  averageRating: number;
+  reviewCount: number;
+};
+
 export const orders = pgTable("orders", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   orderId: text("order_id").notNull().unique(),

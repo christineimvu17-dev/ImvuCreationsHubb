@@ -2,7 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import multer from "multer";
-import { insertOrderSchema, insertChatMessageSchema, insertContactFormSchema } from "@shared/schema";
+import { insertOrderSchema, insertChatMessageSchema, insertContactFormSchema, insertReviewSchema } from "@shared/schema";
 import { fromZodError } from "zod-validation-error";
 
 const upload = multer({ 
@@ -194,7 +194,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/orders/:id/status", async (req, res) => {
+  app.get("/api/admin/orders", async (req, res) => {
+    try {
+      const status = req.query.status as string | undefined;
+      const orders = await storage.getAllOrders(status);
+      res.json(orders);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch orders" });
+    }
+  });
+
+  app.patch("/api/admin/orders/:id", async (req, res) => {
     try {
       const { id } = req.params;
       const { status } = req.body;
@@ -237,6 +247,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({ success: true, order });
     } catch (error) {
       res.status(500).json({ error: "Failed to update order status" });
+    }
+  });
+
+  app.post("/api/reviews", async (req, res) => {
+    try {
+      const validatedData = insertReviewSchema.parse(req.body);
+      const review = await storage.createReview(validatedData);
+      res.json({ success: true, review });
+    } catch (error: any) {
+      if (error.name === "ZodError") {
+        const validationError = fromZodError(error);
+        return res.status(400).json({ error: validationError.message });
+      }
+      res.status(500).json({ error: "Failed to create review" });
+    }
+  });
+
+  app.get("/api/reviews/:productId", async (req, res) => {
+    try {
+      const { productId } = req.params;
+      const reviews = await storage.getReviewsByProductId(productId);
+      res.json(reviews);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch reviews" });
     }
   });
 
