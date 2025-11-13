@@ -56,6 +56,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { Checkbox } from "@/components/ui/checkbox";
 
 export default function AdminDashboard() {
   const [authToken, setAuthToken] = useState<string | null>(null);
@@ -491,6 +492,13 @@ function ProductsTab({ authToken }: { authToken: string }) {
       type: "",
       imageUrl: "",
       videoUrl: "",
+      isGift: false,
+      features: [],
+      loginMethod: "",
+      vipRequired: false,
+      sexRoomNeeded: false,
+      pcSupport: true,
+      mobileSupport: true,
     },
   });
 
@@ -504,6 +512,13 @@ function ProductsTab({ authToken }: { authToken: string }) {
         type: editingProduct.type,
         imageUrl: editingProduct.imageUrl,
         videoUrl: editingProduct.videoUrl || "",
+        isGift: editingProduct.isGift || false,
+        features: editingProduct.features || [],
+        loginMethod: editingProduct.loginMethod || "",
+        vipRequired: editingProduct.vipRequired || false,
+        sexRoomNeeded: editingProduct.sexRoomNeeded || false,
+        pcSupport: editingProduct.pcSupport !== undefined ? editingProduct.pcSupport : true,
+        mobileSupport: editingProduct.mobileSupport !== undefined ? editingProduct.mobileSupport : true,
       });
       setImagePreview(editingProduct.imageUrl);
     } else {
@@ -515,6 +530,13 @@ function ProductsTab({ authToken }: { authToken: string }) {
         type: "",
         imageUrl: "",
         videoUrl: "",
+        isGift: false,
+        features: [],
+        loginMethod: "",
+        vipRequired: false,
+        sexRoomNeeded: false,
+        pcSupport: true,
+        mobileSupport: true,
       });
       setImagePreview(null);
     }
@@ -966,6 +988,150 @@ function ProductsTab({ authToken }: { authToken: string }) {
                   </FormItem>
                 )}
               />
+              
+              <div className="border-t border-purple-500/20 pt-4 mt-4">
+                <h3 className="text-sm font-semibold mb-3 text-purple-400">Product Features</h3>
+                <FormField
+                  control={form.control}
+                  name="features"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Features (one per line)</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          {...field}
+                          value={field.value?.join('\n') || ""}
+                          onChange={(e) => field.onChange(e.target.value.split('\n').filter(f => f.trim()))}
+                          placeholder="High-quality animations&#10;Permanent access&#10;Compatible with all rooms"
+                          rows={5}
+                          data-testid="input-product-features"
+                          className="bg-black/50 border-purple-500/30"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+              
+              <div className="border-t border-purple-500/20 pt-4 mt-4">
+                <h3 className="text-sm font-semibold mb-3 text-purple-400">Requirements</h3>
+                <div className="space-y-4">
+                  <FormField
+                    control={form.control}
+                    name="loginMethod"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Login Method (Optional)</FormLabel>
+                        <FormControl>
+                          <Input {...field} value={field.value || ""} placeholder="e.g., IMVU Account Login" data-testid="input-product-login-method" className="bg-black/50 border-purple-500/30" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <div className="grid grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="vipRequired"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-row items-center gap-2 space-y-0">
+                          <FormControl>
+                            <Checkbox
+                              checked={field.value}
+                              onCheckedChange={field.onChange}
+                              data-testid="checkbox-vip-required"
+                              className="border-purple-500/30"
+                            />
+                          </FormControl>
+                          <FormLabel className="!mt-0 cursor-pointer">VIP Required</FormLabel>
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="sexRoomNeeded"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-row items-center gap-2 space-y-0">
+                          <FormControl>
+                            <Checkbox
+                              checked={field.value}
+                              onCheckedChange={field.onChange}
+                              data-testid="checkbox-sex-room-needed"
+                              className="border-purple-500/30"
+                            />
+                          </FormControl>
+                          <FormLabel className="!mt-0 cursor-pointer">Sex Room Needed</FormLabel>
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </div>
+              </div>
+              
+              <div className="border-t border-purple-500/20 pt-4 mt-4">
+                <h3 className="text-sm font-semibold mb-3 text-purple-400">Platform Support & Options</h3>
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="pcSupport"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-row items-center gap-2 space-y-0">
+                          <FormControl>
+                            <Checkbox
+                              checked={field.value}
+                              onCheckedChange={field.onChange}
+                              data-testid="checkbox-pc-support"
+                              className="border-purple-500/30"
+                            />
+                          </FormControl>
+                          <FormLabel className="!mt-0 cursor-pointer">PC Support</FormLabel>
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="mobileSupport"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-row items-center gap-2 space-y-0">
+                          <FormControl>
+                            <Checkbox
+                              checked={field.value}
+                              onCheckedChange={field.onChange}
+                              data-testid="checkbox-mobile-support"
+                              className="border-purple-500/30"
+                            />
+                          </FormControl>
+                          <FormLabel className="!mt-0 cursor-pointer">Mobile Support</FormLabel>
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  
+                  <FormField
+                    control={form.control}
+                    name="isGift"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-center gap-2 space-y-0">
+                        <FormControl>
+                          <Checkbox
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                            data-testid="checkbox-is-gift"
+                            className="border-purple-500/30"
+                          />
+                        </FormControl>
+                        <FormLabel className="!mt-0 cursor-pointer">Gift Item (shows pink GIFT badge)</FormLabel>
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </div>
+              
               <DialogFooter>
                 <Button
                   type="button"
