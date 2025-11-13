@@ -14,7 +14,7 @@ import {
   contactForms as contactFormsTable,
 } from "@shared/schema";
 import { drizzle } from "drizzle-orm/neon-http";
-import { eq, or } from "drizzle-orm";
+import { eq, desc, ilike } from "drizzle-orm";
 import { randomUUID } from "crypto";
 
 const sql = neon(process.env.DATABASE_URL!);
@@ -91,8 +91,8 @@ export class DatabaseStorage implements IStorage {
     const [order] = await db
       .select()
       .from(ordersTable)
-      .where(eq(ordersTable.email, email))
-      .orderBy(ordersTable.createdAt);
+      .where(ilike(ordersTable.email, email))
+      .orderBy(desc(ordersTable.createdAt));
     return order;
   }
 

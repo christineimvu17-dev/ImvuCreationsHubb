@@ -82,11 +82,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: "Search parameter is required" });
       }
 
+      const trimmedSearch = search.trim();
+      
       let order;
-      if (search.includes("@")) {
-        order = await storage.getOrderByEmail(search);
+      if (trimmedSearch.includes("@")) {
+        order = await storage.getOrderByEmail(trimmedSearch.toLowerCase());
       } else {
-        order = await storage.getOrderByOrderId(search);
+        order = await storage.getOrderByOrderId(trimmedSearch);
       }
 
       if (!order) {

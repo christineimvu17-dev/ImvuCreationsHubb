@@ -25,7 +25,7 @@ const trackOrderSchema = z.object({
 type TrackOrderFormData = z.infer<typeof trackOrderSchema>;
 
 export default function TrackOrder() {
-  const [searchValue, setSearchValue] = useState<string>("");
+  const [submittedSearch, setSubmittedSearch] = useState<string>("");
 
   const form = useForm<TrackOrderFormData>({
     resolver: zodResolver(trackOrderSchema),
@@ -34,20 +34,21 @@ export default function TrackOrder() {
     },
   });
 
-  const { data: order, isLoading, refetch } = useQuery<Order>({
-    queryKey: ["/api/orders/track", searchValue],
+  const { data: order, isLoading } = useQuery<Order>({
+    queryKey: ["/api/orders/track", submittedSearch],
     queryFn: async () => {
-      const response = await fetch(`/api/orders/track?search=${encodeURIComponent(searchValue)}`);
+      const response = await fetch(`/api/orders/track?search=${encodeURIComponent(submittedSearch)}`);
       if (!response.ok) {
         throw new Error("Order not found");
       }
       return response.json();
     },
-    enabled: !!searchValue,
+    enabled: !!submittedSearch,
+    retry: false,
   });
 
   const onSubmit = (data: TrackOrderFormData) => {
-    setSearchValue(data.search);
+    setSubmittedSearch(data.search);
   };
 
   const getStatusIcon = (status: string) => {
@@ -130,7 +131,7 @@ export default function TrackOrder() {
           </Card>
         )}
 
-        {!isLoading && searchValue && !order && (
+        {!isLoading && submittedSearch && !order && (
           <Card className="neon-border">
             <CardContent className="p-12 text-center">
               <XCircle className="h-12 w-12 text-destructive mx-auto mb-4" />

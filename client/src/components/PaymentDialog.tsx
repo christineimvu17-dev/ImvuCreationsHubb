@@ -37,6 +37,10 @@ export function PaymentDialog({ open, onOpenChange, product }: PaymentDialogProp
     navigator.clipboard.writeText("https://www.paypal.com/ncp/payment/JEX4CVZ4QFCVW");
   };
 
+  const handlePayNow = () => {
+    window.open("https://www.paypal.com/ncp/payment/JEX4CVZ4QFCVW", "_blank");
+  };
+
   if (showUploadForm) {
     return (
       <PaymentUploadForm
@@ -86,21 +90,28 @@ export function PaymentDialog({ open, onOpenChange, product }: PaymentDialogProp
                     <span className="font-semibold">PayPal</span>
                     <Badge variant="outline" className="neon-glow-sm">Recommended</Badge>
                   </div>
-                  <div className="space-y-2">
+                  <div className="flex flex-wrap gap-2">
+                    <Button
+                      onClick={handlePayNow}
+                      size="sm"
+                      data-testid="button-pay-now"
+                      className="neon-glow"
+                    >
+                      Pay Now
+                    </Button>
                     <Button
                       variant="outline"
                       size="sm"
                       onClick={handleCopyPayPalLink}
                       data-testid="button-copy-paypal"
-                      className="mr-2"
                     >
                       Copy Payment Link
                     </Button>
                     <Button
                       onClick={handlePayPalClick}
                       size="sm"
+                      variant="secondary"
                       data-testid="button-upload-paypal-proof"
-                      className="neon-glow"
                     >
                       Upload Payment Proof
                     </Button>
