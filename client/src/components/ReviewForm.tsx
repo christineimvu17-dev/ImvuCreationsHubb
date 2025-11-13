@@ -46,7 +46,7 @@ export function ReviewForm({ productId, productName, onSuccess }: ReviewFormProp
       queryClient.invalidateQueries({ queryKey: ["/api/reviews", productId] });
       toast({
         title: "Review Submitted",
-        description: "Thank you for your feedback!",
+        description: "Thank you! Your review will appear after admin approval to prevent spam.",
       });
       setCustomerName("");
       setEmail("");
