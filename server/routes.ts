@@ -5,10 +5,40 @@ import multer from "multer";
 import { randomBytes } from "crypto";
 import { insertOrderSchema, insertChatMessageSchema, insertContactFormSchema, insertReviewSchema, insertProductSchema } from "@shared/schema";
 import { fromZodError } from "zod-validation-error";
+import path from "path";
+import fs from "fs";
 
 const upload = multer({ 
   storage: multer.memoryStorage(),
   limits: { fileSize: 10 * 1024 * 1024 }
+});
+
+const productMediaStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const uploadDir = path.join(process.cwd(), "uploaded_assets", "products");
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir, { recursive: true });
+    }
+    cb(null, uploadDir);
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = `${Date.now()}-${randomBytes(6).toString('hex')}`;
+    const ext = path.extname(file.originalname);
+    cb(null, `${uniqueSuffix}${ext}`);
+  }
+});
+
+const productMediaUpload = multer({
+  storage: productMediaStorage,
+  limits: { fileSize: 50 * 1024 * 1024 },
+  fileFilter: (req, file, cb) => {
+    const allowedMimes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'video/mp4', 'video/webm'];
+    if (allowedMimes.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Invalid file type. Only images and videos are allowed.'));
+    }
+  }
 });
 
 const PAYMENT_WEBHOOK_URL = process.env.PAYMENT_WEBHOOK_URL || "";
@@ -408,6 +438,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch reviews" });
     }
+  });
+
+  app.post("/api/admin/upload-media", requireAdmin, productMediaUpload.single("file"), async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ error: "No file uploaded" });
+      }
+
+      const fileUrl = `/uploaded_assets/products/${req.file.filename}`;
+      res.json({ success: true, url: fileUrl });
+    } catch (error: any) {
+      console.error("File upload error:", error);
+      res.status(500).json({ error: error.message || "Failed to upload file" });
+    }
+  });
+
+  app.use("/uploaded_assets", (req, res, next) => {
+    const express = require("express");
+    express.static(path.join(process.cwd(), "uploaded_assets"))(req, res, next);
   });
 
   const httpServer = createServer(app);

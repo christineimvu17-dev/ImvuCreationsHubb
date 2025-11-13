@@ -472,6 +472,9 @@ function ProductsTab({ authToken }: { authToken: string }) {
   const [showProductDialog, setShowProductDialog] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [deletingProductId, setDeletingProductId] = useState<string | null>(null);
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const [uploadingVideo, setUploadingVideo] = useState(false);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
   const { toast } = useToast();
 
   const { data: products, isLoading } = useQuery<Product[]>({
@@ -502,6 +505,7 @@ function ProductsTab({ authToken }: { authToken: string }) {
         imageUrl: editingProduct.imageUrl,
         videoUrl: editingProduct.videoUrl || "",
       });
+      setImagePreview(editingProduct.imageUrl);
     } else {
       form.reset({
         name: "",
@@ -512,6 +516,7 @@ function ProductsTab({ authToken }: { authToken: string }) {
         imageUrl: "",
         videoUrl: "",
       });
+      setImagePreview(null);
     }
   }, [editingProduct, form]);
 
@@ -632,6 +637,85 @@ function ProductsTab({ authToken }: { authToken: string }) {
   const confirmDelete = () => {
     if (deletingProductId) {
       deleteProductMutation.mutate(deletingProductId);
+    }
+  };
+
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    setUploadingImage(true);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const response = await fetch("/api/admin/upload-media", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+        },
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to upload image");
+      }
+
+      const data = await response.json();
+      form.setValue("imageUrl", data.url);
+      setImagePreview(data.url);
+      
+      toast({
+        title: "Image Uploaded",
+        description: "Product image uploaded successfully",
+      });
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Upload Failed",
+        description: "Failed to upload image",
+      });
+    } finally {
+      setUploadingImage(false);
+    }
+  };
+
+  const handleVideoUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    setUploadingVideo(true);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const response = await fetch("/api/admin/upload-media", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+        },
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to upload video");
+      }
+
+      const data = await response.json();
+      form.setValue("videoUrl", data.url);
+      
+      toast({
+        title: "Video Uploaded",
+        description: "Product video uploaded successfully",
+      });
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Upload Failed",
+        description: "Failed to upload video",
+      });
+    } finally {
+      setUploadingVideo(false);
     }
   };
 
@@ -805,10 +889,44 @@ function ProductsTab({ authToken }: { authToken: string }) {
                 name="imageUrl"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Image URL</FormLabel>
-                    <FormControl>
-                      <Input {...field} placeholder="https://example.com/image.jpg" data-testid="input-product-image" className="bg-black/50 border-purple-500/30" />
-                    </FormControl>
+                    <FormLabel>Product Image</FormLabel>
+                    <div className="space-y-3">
+                      <div className="flex gap-2">
+                        <FormControl>
+                          <Input {...field} placeholder="Enter image URL or upload below" data-testid="input-product-image" className="bg-black/50 border-purple-500/30 flex-1" />
+                        </FormControl>
+                        <label htmlFor="image-upload">
+                          <Button
+                            type="button"
+                            variant="outline"
+                            disabled={uploadingImage}
+                            className="border-purple-500/30"
+                            onClick={() => document.getElementById('image-upload')?.click()}
+                            data-testid="button-upload-image"
+                          >
+                            {uploadingImage ? "Uploading..." : "Upload File"}
+                          </Button>
+                        </label>
+                        <input
+                          id="image-upload"
+                          type="file"
+                          accept="image/*"
+                          onChange={handleImageUpload}
+                          className="hidden"
+                          data-testid="input-image-file"
+                        />
+                      </div>
+                      {(field.value || imagePreview) && (
+                        <div className="relative w-32 h-32 border border-purple-500/30 rounded-md overflow-hidden">
+                          <img
+                            src={field.value || imagePreview || ""}
+                            alt="Preview"
+                            className="w-full h-full object-cover"
+                            data-testid="preview-product-image"
+                          />
+                        </div>
+                      )}
+                    </div>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -818,10 +936,32 @@ function ProductsTab({ authToken }: { authToken: string }) {
                 name="videoUrl"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Video URL (Optional)</FormLabel>
-                    <FormControl>
-                      <Input {...field} value={field.value || ""} placeholder="https://example.com/video.mp4" data-testid="input-product-video" className="bg-black/50 border-purple-500/30" />
-                    </FormControl>
+                    <FormLabel>Product Video (Optional)</FormLabel>
+                    <div className="flex gap-2">
+                      <FormControl>
+                        <Input {...field} value={field.value || ""} placeholder="Enter video URL or upload below" data-testid="input-product-video" className="bg-black/50 border-purple-500/30 flex-1" />
+                      </FormControl>
+                      <label htmlFor="video-upload">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          disabled={uploadingVideo}
+                          className="border-purple-500/30"
+                          onClick={() => document.getElementById('video-upload')?.click()}
+                          data-testid="button-upload-video"
+                        >
+                          {uploadingVideo ? "Uploading..." : "Upload File"}
+                        </Button>
+                      </label>
+                      <input
+                        id="video-upload"
+                        type="file"
+                        accept="video/*"
+                        onChange={handleVideoUpload}
+                        className="hidden"
+                        data-testid="input-video-file"
+                      />
+                    </div>
                     <FormMessage />
                   </FormItem>
                 )}
