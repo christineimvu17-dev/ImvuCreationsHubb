@@ -786,7 +786,7 @@ function ProductsTab({ authToken }: { authToken: string }) {
                       <TableCell className="font-medium" data-testid={`text-product-name-${product.id}`}>{product.name}</TableCell>
                       <TableCell data-testid={`text-product-category-${product.id}`}>{product.category}</TableCell>
                       <TableCell data-testid={`text-product-type-${product.id}`}>{product.type}</TableCell>
-                      <TableCell className="text-purple-400" data-testid={`text-product-price-${product.id}`}>${product.price}</TableCell>
+                      <TableCell className="text-purple-400" data-testid={`text-product-price-${product.id}`}>${(product.price / 100).toFixed(2)}</TableCell>
                       <TableCell>
                         <div className="flex gap-2">
                           <Button
@@ -867,10 +867,14 @@ function ProductsTab({ authToken }: { authToken: string }) {
                       <FormLabel>Price ($)</FormLabel>
                       <FormControl>
                         <Input
-                          {...field}
                           type="number"
-                          placeholder="99"
-                          onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
+                          step="0.01"
+                          placeholder="24.99"
+                          value={field.value ? (field.value / 100).toFixed(2) : ""}
+                          onChange={(e) => {
+                            const dollars = parseFloat(e.target.value) || 0;
+                            field.onChange(Math.round(dollars * 100));
+                          }}
                           data-testid="input-product-price"
                           className="bg-black/50 border-purple-500/30"
                         />
