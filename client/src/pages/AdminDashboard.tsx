@@ -106,14 +106,14 @@ export default function AdminDashboard() {
       setAuthToken(data.token);
       localStorage.setItem("adminToken", data.token);
       toast({
-        title: "🔓 Admin Access Granted",
+        title: "Admin Access Granted",
         description: "Welcome to BM Creations Admin Dashboard",
       });
     },
     onError: () => {
       toast({
         variant: "destructive",
-        title: "❌ Access Denied",
+        title: "Access Denied",
         description: "Incorrect password",
       });
     },
@@ -137,7 +137,7 @@ export default function AdminDashboard() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/orders"] });
       toast({
-        title: "✅ Status Updated",
+        title: "Status Updated",
         description: "Order status updated successfully. Discord notification sent.",
       });
       setShowConfirmDialog(false);
