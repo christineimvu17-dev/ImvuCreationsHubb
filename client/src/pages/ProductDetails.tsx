@@ -102,7 +102,7 @@ export default function ProductDetails() {
                 
                 <div className="absolute top-4 right-4 flex gap-2">
                   <Badge className="bg-purple-500/90 hover:bg-purple-500 text-white font-bold px-4 py-2 text-base shadow-lg shadow-purple-500/50" data-testid="badge-price">
-                    ${(product.price / 100).toFixed(0)}
+                    ${(product.price / 100).toFixed(2)}
                   </Badge>
                   {product.isGift && (
                     <Badge className="bg-pink-500/90 hover:bg-pink-500 text-white font-bold px-4 py-2 text-base shadow-lg shadow-pink-500/50 flex items-center gap-2" data-testid="badge-gift">

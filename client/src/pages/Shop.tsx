@@ -48,7 +48,7 @@ export default function Shop() {
               
               <div className="absolute top-3 right-3 flex gap-2">
                 <Badge className="bg-purple-500/90 hover:bg-purple-500 text-white font-bold px-3 py-1 text-sm shadow-lg shadow-purple-500/50" data-testid={`badge-price-${product.id}`}>
-                  ${(product.price / 100).toFixed(0)}
+                  ${(product.price / 100).toFixed(2)}
                 </Badge>
                 {product.isGift && (
                   <Badge className="bg-pink-500/90 hover:bg-pink-500 text-white font-bold px-3 py-1 text-sm shadow-lg shadow-pink-500/50 flex items-center gap-1" data-testid={`badge-gift-${product.id}`}>
