@@ -69,6 +69,13 @@ export class DatabaseStorage implements IStorage {
         type: productsTable.type,
         imageUrl: productsTable.imageUrl,
         videoUrl: productsTable.videoUrl,
+        isGift: productsTable.isGift,
+        features: productsTable.features,
+        loginMethod: productsTable.loginMethod,
+        vipRequired: productsTable.vipRequired,
+        sexRoomNeeded: productsTable.sexRoomNeeded,
+        pcSupport: productsTable.pcSupport,
+        mobileSupport: productsTable.mobileSupport,
         averageRating: sqlOp<number>`COALESCE(AVG(CASE WHEN ${reviewsTable.approved} = true THEN ${reviewsTable.rating} END), 0)`,
         reviewCount: sqlOp<number>`COUNT(CASE WHEN ${reviewsTable.approved} = true THEN 1 END)`,
       })
