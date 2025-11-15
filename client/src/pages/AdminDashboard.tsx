@@ -478,6 +478,36 @@ function ProductsTab({ authToken }: { authToken: string }) {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const { toast } = useToast();
 
+  const seedProductsMutation = useMutation({
+    mutationFn: async () => {
+      const response = await fetch("/api/admin/seed-products", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+      });
+      if (!response.ok) {
+        throw new Error("Failed to seed products");
+      }
+      return response.json();
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["/api/products"] });
+      toast({
+        title: "Products Seeded Successfully",
+        description: `Added ${data.count} products to your database`,
+      });
+    },
+    onError: () => {
+      toast({
+        variant: "destructive",
+        title: "Seed Failed",
+        description: "Failed to seed products. They may already exist.",
+      });
+    },
+  });
+
   const { data: products, isLoading } = useQuery<Product[]>({
     queryKey: ["/api/products"],
   });
@@ -750,16 +780,28 @@ function ProductsTab({ authToken }: { authToken: string }) {
               <CardTitle className="font-exo2">Product Management</CardTitle>
               <CardDescription>Manage product catalog</CardDescription>
             </div>
-            <Button
-              onClick={() => {
-                setEditingProduct(null);
-                setShowProductDialog(true);
-              }}
-              data-testid="button-add-product"
-            >
-              <Plus className="w-4 h-4 mr-2" />
-              Add Product
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                onClick={() => seedProductsMutation.mutate()}
+                disabled={seedProductsMutation.isPending}
+                data-testid="button-seed-products"
+                className="border-purple-500/50"
+              >
+                <Package className="w-4 h-4 mr-2" />
+                {seedProductsMutation.isPending ? "Seeding..." : "Seed All Products"}
+              </Button>
+              <Button
+                onClick={() => {
+                  setEditingProduct(null);
+                  setShowProductDialog(true);
+                }}
+                data-testid="button-add-product"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Add Product
+              </Button>
+            </div>
           </div>
         </CardHeader>
         <CardContent>
