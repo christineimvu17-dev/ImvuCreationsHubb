@@ -150,6 +150,12 @@ export function CartCheckoutDialog({ open, onOpenChange }: CartCheckoutDialogPro
               />
             </div>
 
+            <div className="pt-2">
+              <p className="text-sm font-medium text-muted-foreground mb-3">
+                Choose your payment method below
+              </p>
+            </div>
+
             <div className="space-y-3">
               <Label>Payment Method *</Label>
               <RadioGroup value={paymentMethod} onValueChange={setPaymentMethod}>
