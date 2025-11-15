@@ -13,24 +13,14 @@ import { Star, ArrowLeft, Check, Gift, Monitor, Smartphone, User, ShieldCheck, H
 import { useCart } from "@/contexts/CartContext";
 import { useToast } from "@/hooks/use-toast";
 const getImageForProduct = (imageUrl: string) => {
-  // Handle uploaded assets (from admin) - use backend URL
-  if (imageUrl.startsWith('/uploaded_assets/')) {
-    const API_URL = import.meta.env.VITE_API_URL || '';
-    return `${API_URL}${imageUrl}`;
-  }
-  
   // Handle attached assets (generated images) - convert to public images path
   if (imageUrl.startsWith('/attached_assets/generated_images/')) {
     const filename = imageUrl.split('/').pop();
     return `/images/${filename}`;
   }
   
-  // Handle static images (fallback patterns)
-  if (imageUrl.includes("Premium_trigger")) return "/images/Premium_trigger_product_icon_bce9e655.png";
-  if (imageUrl.includes("Gifting_trigger")) return "/images/Gifting_trigger_icon_d54ee4bc.png";
-  if (imageUrl.includes("Virtual_room")) return "/images/Virtual_room_product_preview_0f22295e.png";
-  if (imageUrl.includes("Bundle_offer")) return "/images/Bundle_offer_icon_2dab81cb.png";
-  return "/images/Premium_trigger_product_icon_bce9e655.png";
+  // All other paths (including /uploaded_assets/) are served from public folder
+  return imageUrl;
 };
 
 export default function ProductDetails() {
@@ -116,7 +106,7 @@ export default function ProductDetails() {
               <div className="relative aspect-square bg-gradient-to-b from-purple-900/20 to-black">
                 {(product.videoUrl && product.category === "rooms") || product.imageUrl.endsWith('.mp4') ? (
                   <video
-                    src={(product.videoUrl || product.imageUrl).startsWith('/uploaded_assets/') ? `${import.meta.env.VITE_API_URL || ''}${product.videoUrl || product.imageUrl}` : (product.videoUrl || product.imageUrl)}
+                    src={product.videoUrl || product.imageUrl}
                     controls={true}
                     autoPlay={true}
                     loop={true}
