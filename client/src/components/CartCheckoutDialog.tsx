@@ -173,16 +173,15 @@ export function CartCheckoutDialog({ open, onOpenChange }: CartCheckoutDialogPro
                 <p className="text-sm mb-3">
                   <strong>Total Amount:</strong> ${(subtotal / 100).toFixed(2)}
                 </p>
-                <a
-                  href="https://www.paypal.com/paypalme/bmcreationspayments"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  data-testid="link-paypal"
+                <Button 
+                  type="button" 
+                  variant="secondary" 
+                  className="w-full neon-glow-blue"
+                  onClick={() => window.open("https://www.paypal.com/paypalme/bmcreationspayments", "_blank")}
+                  data-testid="button-paypal"
                 >
-                  <Button type="button" variant="secondary" className="w-full neon-glow-blue">
-                    Pay via PayPal
-                  </Button>
-                </a>
+                  Pay via PayPal
+                </Button>
                 <p className="text-xs text-muted-foreground mt-2">
                   After payment, upload screenshot below or submit order and send proof via Discord.
                 </p>

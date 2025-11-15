@@ -6,7 +6,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
 import type { ProductWithRatings } from "@shared/schema";
-import { Monitor, Smartphone, Check, Gift, ShoppingCart, Eye } from "lucide-react";
+import { Monitor, Smartphone, Check, Gift, ShoppingCart, Eye, Pause } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 import { useToast } from "@/hooks/use-toast";
 import triggerImage from "@assets/generated_images/Premium_trigger_product_icon_bce9e655.png";
@@ -49,16 +49,34 @@ export default function Shop() {
       <Card className="neon-border hover-elevate active-elevate-2 transition-all duration-300 overflow-hidden bg-black/40 backdrop-blur-sm shadow-[0_0_30px_rgba(168,85,247,0.15)]">
         <CardHeader className="p-0 relative">
           <Link href={`/product/${product.id}`}>
-            <div className="relative aspect-square overflow-hidden bg-gradient-to-b from-purple-900/20 to-black cursor-pointer">
-              <img
-                src={product.imageUrl.startsWith('/') ? product.imageUrl : getImageForProduct(product.imageUrl)}
-                alt={product.name}
-                className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
-                data-testid={`img-product-${product.id}`}
-              />
+            <div className="relative aspect-square overflow-hidden bg-gradient-to-b from-purple-900/20 to-black cursor-pointer group">
+              {product.videoUrl && product.category === "rooms" ? (
+                <>
+                  <video
+                    src={product.videoUrl}
+                    loop
+                    muted
+                    playsInline
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                    data-testid={`video-product-${product.id}`}
+                  />
+                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                    <div className="bg-black/50 backdrop-blur-sm rounded-full p-4 shadow-lg shadow-purple-500/30">
+                      <Pause className="w-8 h-8 text-white" />
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <img
+                  src={product.imageUrl.startsWith('/') ? product.imageUrl : getImageForProduct(product.imageUrl)}
+                  alt={product.name}
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                  data-testid={`img-product-${product.id}`}
+                />
+              )}
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
               
-              <div className="absolute top-3 right-3 flex gap-2">
+              <div className="absolute top-3 right-3 flex gap-2 z-10">
                 <Badge className="bg-purple-500/90 hover:bg-purple-500 text-white font-bold px-3 py-1 text-sm shadow-lg shadow-purple-500/50" data-testid={`badge-price-${product.id}`}>
                   ${(product.price / 100).toFixed(2)}
                 </Badge>
