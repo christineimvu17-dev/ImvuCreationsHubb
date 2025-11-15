@@ -97,15 +97,15 @@ export function CartCheckoutDialog({ open, onOpenChange }: CartCheckoutDialogPro
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[600px] max-h-[85vh] flex flex-col p-0">
-        <DialogHeader className="px-6 pt-6 pb-4 border-b">
+      <DialogContent className="sm:max-w-[600px] h-[85vh] overflow-hidden p-0 gap-0 grid-rows-[auto_1fr_auto]">
+        <DialogHeader className="px-6 pt-6 pb-4 border-b shrink-0">
           <DialogTitle className="flex items-center gap-2">
             <ShoppingCart className="h-5 w-5" />
             Checkout - {items.length} {items.length === 1 ? "Item" : "Items"}
           </DialogTitle>
         </DialogHeader>
 
-        <div className="flex-1 overflow-y-auto px-6 py-4 space-y-6">
+        <div className="overflow-y-auto px-6 py-4 space-y-6 min-h-0">
           <div className="space-y-3 max-h-40 overflow-y-auto">
             <h3 className="font-semibold text-sm text-muted-foreground">Order Summary</h3>
             {items.map((item) => (
@@ -223,7 +223,7 @@ export function CartCheckoutDialog({ open, onOpenChange }: CartCheckoutDialogPro
           </form>
         </div>
 
-        <div className="px-6 py-4 border-t bg-background">
+        <div className="px-6 py-4 border-t bg-background shrink-0">
           <Button
             type="submit"
             form="checkout-form"
