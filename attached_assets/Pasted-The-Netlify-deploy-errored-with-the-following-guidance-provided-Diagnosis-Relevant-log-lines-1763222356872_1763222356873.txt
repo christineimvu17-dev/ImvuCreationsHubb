@@ -1,0 +1,92 @@
+The Netlify deploy errored, with the following guidance provided:
+
+Diagnosis
+- Relevant log lines: the build script ran at the repo root ([#L68](#L68)) and completed producing assets under dist (example: dist/public/index.html [#L76](#L76) and dist/index.js [#L90](#L90)), but Netlify failed because it was configured to publish client/dist which does not exist ([#L72](#L72), [#L104](#L104)). The resolved deploy config shows Netlify is running cd client && npm install && npm run build and publishing /opt/build/repo/client/dist ([#L107-L113](#L107-L113)).
+- Error type and cause: configuration mismatch / missing directory. Netlify is configured to build/publish a client subfolder that is not present in the repository (or not committed). The actual build output is produced at dist (and dist/public), so the configured publish directory client/dist does not exist, causing the deploy to fail.
+
+Solution
+1) Quick verification (pick A or B depending on your repo)
+- If your project really has a client folder:
+  - Verify the client folder with its package.json and source files is committed to the repo (check your GitHub repository for a client/ directory and package.json inside it). If it is missing, add/commit that folder so Netlify can cd into it.
+- If your project is built from the repo root (as the logs show), change Netlify's build settings to use the root build and correct publish directory.
+
+2) Change Netlify settings (recommended)
+- Update your site Build & deploy settings (Netlify UI) or netlify.toml so the build command runs at the repo root and the publish directory points to the actual build output (dist or dist/public). Based on the logs, publish should be dist/public. Example netlify.toml:
+
+```toml
+[build]
+  command = "npm install && npm run build"
+  publish = "dist/public"
+  environment = { VITE_API_URL = "" }
+```
+
+Notes:
+- Netlify automatically runs npm install before the build command, so command = "npm run build" is also acceptable.
+- If you prefer to publish the entire dist (not just dist/public), set publish = "dist" instead, but confirm contents locally (run npm run build and inspect dist/).
+
+3) If you choose to keep using client/ as configured
+- Ensure the client directory exists and is committed.
+- Confirm client/package.json has a build script that produces client/dist.
+- Then redeploy.
+
+4) Verify locally before redeploying
+- Run the build locally: npm install && npm run build
+- Confirm which folder is produced (dist or dist/public or client/dist). Use that exact path in Netlify publish settings.
+
+After making the change, trigger a new deploy. The deploy will succeed once Netlify can find the configured publish directory.
+
+The relevant error logs are:
+
+Line 62: 8 vulnerabilities (3 low, 5 moderate)
+Line 63: To address issues that do not require attention, run:
+Line 64:   npm audit fix
+Line 65: To address all issues (including breaking changes), run:
+Line 66:   npm audit fix --force
+Line 67: Run `npm audit` for details.
+Line 68: > rest-express@1.0.0 build
+Line 69: > vite build && esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist
+Line 70: [36mvite v5.4.20 [32mbuilding for production...[36m[39m
+Line 71: transforming...
+Line 72: Failed during stage 'building site': Build script returned non-zero exit code: 2
+Line 73: A PostCSS plugin did not pass the `from` option to `postcss.parse`. This may cause imported assets to be incorrectly transformed
+Line 74: rendering chunks...
+Line 75: computing gzip size...
+Line 76: [2m../dist/public/[22m[32mindex.html                                                    [39m[1m[2m    3.38 kB[22m[1m[22
+Line 77: [2m../dist/public/[22m[2massets/[22m[32mPremium_trigger_product_icon_bce9e655-OFezXkGR.png     [39m[1m[2m1,102.67 kB[22
+Line 78: [2m../dist/public/[22m[2massets/[22m[32mGifting_trigger_icon_d54ee4bc-CMkbcExY.png             [39m[1m[2m1,198.23 kB[22
+Line 79: [2m../dist/public/[22m[2massets/[22m[32mBundle_offer_icon_2dab81cb-DeriEPbe.png                [39m[1m[2m1,520.65 kB[22
+Line 80: [2m../dist/public/[22m[2massets/[22m[32mVirtual_room_product_preview_0f22295e-1AotY3Yz.png     [39m[1m[2m1,585.95 kB[22
+Line 81: [2m../dist/public/[22m[2massets/[22m[32mFuturistic_IMVU_hero_background_36af4450-C3TPXJzA.png  [39m[1m[2m1,616.11 kB[22
+Line 82: [2m../dist/public/[22m[2massets/[22m[35mindex-DC2r4JdN.css                                     [39m[1m[2m   83.15 kB[22
+Line 90:   dist/index.js  43.1kb
+Line 91: ⚡ Done in 5ms
+Line 92: ​
+Line 93: [90m(build.command completed in 4.9s)[39m
+Line 94: [96m[1m​[22m[39m
+Line 95: [96m[1mDeploy site                                                   [22m[39m
+Line 96: [96m[1m────────────────────────────────────────────────────────────────[22m[39m
+Line 97: ​
+Line 98: Section completed: deploying
+Line 99: [91m[1m​[22m[39m
+Line 100: [91m[1mConfiguration error                                           [22m[39m
+Line 101: [91m[1m────────────────────────────────────────────────────────────────[22m[39m
+Line 102: ​
+Line 103:   [31m[1mError message[22m[39m
+Line 104:   Deploy did not succeed: Deploy directory 'client/dist' does not exist
+Line 105: ​
+Line 106:   [31m[1mResolved config[22m[39m
+Line 107:   build:
+Line 108:     command: cd client && npm install && npm run build
+Line 109:     commandOrigin: config
+Line 110:     environment:
+Line 111:       - VITE_API_URL
+Line 112:     publish: /opt/build/repo/client/dist
+Line 113:     publishOrigin: config
+Line 114:   redirects:
+Line 115:     - from: /*
+      status: 200
+      to: /index.html
+  redirectsOrigin: config
+Line 116: Build failed due to a user error: Build script returned non-zero exit code: 2
+Line 117: Failing build: Failed to build site
+Line 118: Finished processing build request in 15.94s
