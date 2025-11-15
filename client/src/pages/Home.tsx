@@ -22,13 +22,13 @@ export default function Home() {
         <div className="container mx-auto px-4 py-20 relative z-10 text-center">
           <div className="animate-float">
             <h1 className="text-5xl md:text-7xl font-bold mb-6 neon-text" style={{ fontFamily: 'Orbitron' }}>
-              Welcome to BM Creations
+              BM Creations - Premium IMVU Triggers & Rooms
             </h1>
             <p className="text-xl md:text-2xl mb-8 text-foreground/90" style={{ fontFamily: 'Rajdhani' }}>
-              Your IMVU Gaming Hub
+              Cheapest IMVU Black Market Shop - Trusted Since 2024
             </p>
             <p className="text-lg md:text-xl mb-12 text-muted-foreground max-w-3xl mx-auto">
-              Premium IMVU triggers, exclusive rooms, and creative tools — trusted by gamers worldwide.
+              Buy permanent IMVU triggers, premium sex rooms, and exclusive bundles with instant delivery. PC & Mobile supported. 24/7 customer support. Permanent warranty on all products.
             </p>
           </div>
 
@@ -57,7 +57,7 @@ export default function Home() {
       <section className="py-20 bg-background">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl md:text-4xl font-bold text-center mb-12 neon-text" style={{ fontFamily: 'Orbitron' }}>
-            Why Choose BM Creations?
+            Why Choose BM Creations for IMVU Products?
           </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -68,9 +68,9 @@ export default function Home() {
                     <Zap className="h-8 w-8 text-primary" />
                   </div>
                 </div>
-                <h3 className="text-xl font-bold mb-3">Premium Quality</h3>
+                <h3 className="text-xl font-bold mb-3">Cheapest IMVU Triggers & Rooms</h3>
                 <p className="text-muted-foreground">
-                  High-quality IMVU products including triggers, animations, and custom rooms designed for the best gaming experience.
+                  Best prices for premium IMVU triggers starting at $34.99. Get BBC King, King Cummy, Venom V3, and more high-quality permanent triggers with warranty.
                 </p>
               </CardContent>
             </Card>
@@ -82,9 +82,9 @@ export default function Home() {
                     <Users className="h-8 w-8 text-secondary" />
                   </div>
                 </div>
-                <h3 className="text-xl font-bold mb-3">Trusted by Gamers</h3>
+                <h3 className="text-xl font-bold mb-3">Trusted IMVU Marketplace</h3>
                 <p className="text-muted-foreground">
-                  Hundreds of satisfied customers trust us for honesty, speed, and innovation in the IMVU community.
+                  Thousands of satisfied IMVU players trust BM Creations. Instant delivery, 24/7 support, secure payment methods including PayPal, CashApp & more.
                 </p>
               </CardContent>
             </Card>
@@ -96,9 +96,9 @@ export default function Home() {
                     <ShoppingBag className="h-8 w-8 text-primary" />
                   </div>
                 </div>
-                <h3 className="text-xl font-bold mb-3">Exclusive Collection</h3>
+                <h3 className="text-xl font-bold mb-3">16 Premium IMVU Products</h3>
                 <p className="text-muted-foreground">
-                  Discover permanent and gifting triggers, luxurious 3D rooms, and exclusive bundle offers.
+                  Shop permanent triggers, premium sex rooms (Deluxe, Pink, Resort, Threesome), bundle deals with lifetime warranty. PC & Mobile compatible.
                 </p>
               </CardContent>
             </Card>
@@ -111,10 +111,10 @@ export default function Home() {
       <section className="py-20 bg-card/50">
         <div className="container mx-auto px-4 text-center">
           <h2 className="text-3xl md:text-4xl font-bold mb-6 neon-text" style={{ fontFamily: 'Orbitron' }}>
-            Ready to Upgrade Your IMVU Experience?
+            Buy IMVU Triggers & Rooms - Instant Delivery
           </h2>
           <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
-            Browse our collection of premium triggers, exclusive rooms, and bundle offers designed to enhance your virtual world.
+            Shop BBC King V5, King Cummy, Female Trigger, Deluxe Room, Modern Apartment, Pink Room, Resort Room, Threesome Room, and exclusive bundles. All products include permanent warranty, PC & Mobile support, and 24/7 customer service.
           </p>
           <Link href="/shop" data-testid="button-browse-products">
             <Button size="lg" className="neon-glow text-lg px-8 gap-2">

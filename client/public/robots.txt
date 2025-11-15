@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+Allow: /shop
+Allow: /about
+Allow: /track
+Allow: /contact
+Disallow: /admin
+Disallow: /api/
+
+Sitemap: https://bmcreations.com/sitemap.xml
