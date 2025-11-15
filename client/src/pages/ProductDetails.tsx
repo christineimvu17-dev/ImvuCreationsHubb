@@ -92,12 +92,24 @@ export default function ProductDetails() {
           <div className="space-y-4">
             <Card className="neon-border overflow-hidden bg-black/40 backdrop-blur-sm shadow-[0_0_30px_rgba(168,85,247,0.15)]">
               <div className="relative aspect-square bg-gradient-to-b from-purple-900/20 to-black">
-                <img
-                  src={product.imageUrl.startsWith('/') ? product.imageUrl : getImageForProduct(product.imageUrl)}
-                  alt={product.name}
-                  className="w-full h-full object-cover"
-                  data-testid="img-product"
-                />
+                {product.videoUrl && product.category === "rooms" ? (
+                  <video
+                    src={product.videoUrl}
+                    controls
+                    autoPlay
+                    loop
+                    muted
+                    className="w-full h-full object-cover"
+                    data-testid="video-product"
+                  />
+                ) : (
+                  <img
+                    src={product.imageUrl.startsWith('/') ? product.imageUrl : getImageForProduct(product.imageUrl)}
+                    alt={product.name}
+                    className="w-full h-full object-cover"
+                    data-testid="img-product"
+                  />
+                )}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
                 
                 <div className="absolute top-4 right-4 flex gap-2">
@@ -202,7 +214,9 @@ export default function ProductDetails() {
                     <User className="w-5 h-5 text-purple-400" />
                     <div>
                       <div className="text-sm text-gray-400">Login Method</div>
-                      <div className="font-medium">{product.loginMethod}</div>
+                      <div className="font-medium">
+                        {product.type === "Gifting" ? product.loginMethod : "Login required for permanent trigger"}
+                      </div>
                     </div>
                   </div>
                 )}
@@ -210,14 +224,18 @@ export default function ProductDetails() {
                   <ShieldCheck className="w-5 h-5 text-purple-400" />
                   <div>
                     <div className="text-sm text-gray-400">VIP Required</div>
-                    <div className="font-medium">{product.vipRequired ? "Yes" : "No"}</div>
+                    <div className="font-medium">
+                      {product.vipRequired ? "Yes" : "You need to purchase only one time platinum VIP"}
+                    </div>
                   </div>
                 </div>
                 <div className="flex items-center gap-3" data-testid="requirement-room">
                   <Home className="w-5 h-5 text-purple-400" />
                   <div>
                     <div className="text-sm text-gray-400">Sex Room Needed</div>
-                    <div className="font-medium">{product.sexRoomNeeded ? "Yes" : "No"}</div>
+                    <div className="font-medium">
+                      {product.sexRoomNeeded ? "Yes" : "Must have sex room"}
+                    </div>
                   </div>
                 </div>
                 <div className="border-t border-purple-500/20 pt-3 mt-3">
