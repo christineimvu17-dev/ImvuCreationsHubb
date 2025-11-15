@@ -114,9 +114,9 @@ export default function ProductDetails() {
           <div className="space-y-4">
             <Card className="neon-border overflow-hidden bg-black/40 backdrop-blur-sm shadow-[0_0_30px_rgba(168,85,247,0.15)]">
               <div className="relative aspect-square bg-gradient-to-b from-purple-900/20 to-black">
-                {product.videoUrl && product.category === "rooms" ? (
+                {(product.videoUrl && product.category === "rooms") || product.imageUrl.endsWith('.mp4') ? (
                   <video
-                    src={product.videoUrl.startsWith('/uploaded_assets/') ? `${import.meta.env.VITE_API_URL || ''}${product.videoUrl}` : product.videoUrl}
+                    src={(product.videoUrl || product.imageUrl).startsWith('/uploaded_assets/') ? `${import.meta.env.VITE_API_URL || ''}${product.videoUrl || product.imageUrl}` : (product.videoUrl || product.imageUrl)}
                     controls={true}
                     autoPlay={true}
                     loop={true}
@@ -126,7 +126,7 @@ export default function ProductDetails() {
                   />
                 ) : (
                   <img
-                    src={product.imageUrl.startsWith('/uploaded_assets/') ? `${import.meta.env.VITE_API_URL || ''}${product.imageUrl}` : (product.imageUrl.startsWith('/') ? product.imageUrl : getImageForProduct(product.imageUrl))}
+                    src={getImageForProduct(product.imageUrl)}
                     alt={product.name}
                     className="w-full h-full object-cover"
                     data-testid="img-product"

@@ -58,10 +58,10 @@ export default function Shop() {
         <CardHeader className="p-0 relative">
           <Link href={`/product/${product.id}`}>
             <div className="relative aspect-square overflow-hidden bg-gradient-to-b from-purple-900/20 to-black cursor-pointer group">
-              {product.videoUrl && product.category === "rooms" ? (
+              {(product.videoUrl && product.category === "rooms") || product.imageUrl.endsWith('.mp4') ? (
                 <>
                   <video
-                    src={product.videoUrl.startsWith('/uploaded_assets/') ? `${import.meta.env.VITE_API_URL || ''}${product.videoUrl}` : product.videoUrl}
+                    src={(product.videoUrl || product.imageUrl).startsWith('/uploaded_assets/') ? `${import.meta.env.VITE_API_URL || ''}${product.videoUrl || product.imageUrl}` : (product.videoUrl || product.imageUrl)}
                     loop
                     muted
                     playsInline
@@ -76,7 +76,7 @@ export default function Shop() {
                 </>
               ) : (
                 <img
-                  src={product.imageUrl.startsWith('/') ? product.imageUrl : getImageForProduct(product.imageUrl)}
+                  src={getImageForProduct(product.imageUrl)}
                   alt={product.name}
                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                   data-testid={`img-product-${product.id}`}
