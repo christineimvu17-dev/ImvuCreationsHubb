@@ -1309,7 +1309,7 @@ function ReviewsTab({ authToken }: { authToken: string }) {
           </div>
         ) : reviews && reviews.length > 0 ? (
           <div className="space-y-6">
-            {reviewFilter === "all" && pendingReviews && pendingReviews.length > 0 && (
+            {(reviewFilter === "all" || reviewFilter === "pending") && pendingReviews && pendingReviews.length > 0 && (
               <div>
                 <h3 className="text-lg font-semibold text-purple-400 mb-4">Pending Reviews ({pendingReviews.length})</h3>
                 <div className="space-y-4">
@@ -1354,7 +1354,7 @@ function ReviewsTab({ authToken }: { authToken: string }) {
               </div>
             )}
 
-            {reviewFilter === "pending" && (!pendingReviews || pendingReviews.length === 0) && (
+            {(reviewFilter === "pending" || reviewFilter === "all") && (!pendingReviews || pendingReviews.length === 0) && (
               <div className="text-center py-12">
                 <p className="text-gray-400">No pending reviews</p>
               </div>
