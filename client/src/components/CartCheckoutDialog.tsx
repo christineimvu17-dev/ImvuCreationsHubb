@@ -97,15 +97,15 @@ export function CartCheckoutDialog({ open, onOpenChange }: CartCheckoutDialogPro
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
+      <DialogContent className="sm:max-w-[600px] max-h-[85vh] flex flex-col p-0">
+        <DialogHeader className="px-6 pt-6 pb-4 border-b">
           <DialogTitle className="flex items-center gap-2">
             <ShoppingCart className="h-5 w-5" />
             Checkout - {items.length} {items.length === 1 ? "Item" : "Items"}
           </DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-6">
+        <div className="flex-1 overflow-y-auto px-6 py-4 space-y-6">
           <div className="space-y-3 max-h-40 overflow-y-auto">
             <h3 className="font-semibold text-sm text-muted-foreground">Order Summary</h3>
             {items.map((item) => (
@@ -124,7 +124,7 @@ export function CartCheckoutDialog({ open, onOpenChange }: CartCheckoutDialogPro
             </div>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form id="checkout-form" onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="imvu-id">IMVU ID *</Label>
               <Input
@@ -220,23 +220,27 @@ export function CartCheckoutDialog({ open, onOpenChange }: CartCheckoutDialogPro
               </div>
             )}
 
-            <Button
-              type="submit"
-              className="w-full neon-glow"
-              size="lg"
-              disabled={orderMutation.isPending}
-              data-testid="button-submit-order"
-            >
-              {orderMutation.isPending ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Processing Order...
-                </>
-              ) : (
-                "Place Order"
-              )}
-            </Button>
           </form>
+        </div>
+
+        <div className="px-6 py-4 border-t bg-background">
+          <Button
+            type="submit"
+            form="checkout-form"
+            className="w-full neon-glow"
+            size="lg"
+            disabled={orderMutation.isPending}
+            data-testid="button-submit-order"
+          >
+            {orderMutation.isPending ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Processing Order...
+              </>
+            ) : (
+              "Place Order"
+            )}
+          </Button>
         </div>
       </DialogContent>
     </Dialog>
