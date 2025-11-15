@@ -12,17 +12,12 @@ import type { ProductWithRatings } from "@shared/schema";
 import { Star, ArrowLeft, Check, Gift, Monitor, Smartphone, User, ShieldCheck, Home, ShoppingCart } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 import { useToast } from "@/hooks/use-toast";
-import triggerImage from "@assets/generated_images/Premium_trigger_product_icon_bce9e655.png";
-import roomImage from "@assets/generated_images/Virtual_room_product_preview_0f22295e.png";
-import giftTriggerImage from "@assets/generated_images/Gifting_trigger_icon_d54ee4bc.png";
-import bundleImage from "@assets/generated_images/Bundle_offer_icon_2dab81cb.png";
-
 const getImageForProduct = (imageUrl: string) => {
-  if (imageUrl.includes("Premium_trigger")) return triggerImage;
-  if (imageUrl.includes("Gifting_trigger")) return giftTriggerImage;
-  if (imageUrl.includes("Virtual_room")) return roomImage;
-  if (imageUrl.includes("Bundle_offer")) return bundleImage;
-  return triggerImage;
+  if (imageUrl.includes("Premium_trigger")) return "/images/Premium_trigger_product_icon_bce9e655.png";
+  if (imageUrl.includes("Gifting_trigger")) return "/images/Gifting_trigger_icon_d54ee4bc.png";
+  if (imageUrl.includes("Virtual_room")) return "/images/Virtual_room_product_preview_0f22295e.png";
+  if (imageUrl.includes("Bundle_offer")) return "/images/Bundle_offer_icon_2dab81cb.png";
+  return "/images/Premium_trigger_product_icon_bce9e655.png";
 };
 
 export default function ProductDetails() {

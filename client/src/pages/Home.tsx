@@ -3,7 +3,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Link } from "wouter";
 import { ShoppingBag, Users, Zap } from "lucide-react";
 import { SiDiscord } from "react-icons/si";
-import heroImage from "@assets/generated_images/Futuristic_IMVU_hero_background_36af4450.png";
 import HowItWorks from "@/components/HowItWorks";
 
 export default function Home() {
@@ -12,7 +11,7 @@ export default function Home() {
       <section
         className="relative flex items-center justify-center min-h-[600px] overflow-hidden"
         style={{
-          backgroundImage: `linear-gradient(to bottom, rgba(0, 0, 0, 0.7), rgba(10, 10, 30, 0.85)), url(${heroImage})`,
+          backgroundImage: `linear-gradient(to bottom, rgba(0, 0, 0, 0.7), rgba(10, 10, 30, 0.85)), url(/images/Futuristic_IMVU_hero_background_36af4450.png)`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
         }}
