@@ -51,8 +51,8 @@ export function PaymentDialog({ open, onOpenChange, product }: PaymentDialogProp
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl neon-border neon-glow-sm">
-        <DialogHeader>
+      <DialogContent className="max-w-2xl h-[85vh] overflow-hidden p-0 gap-0 grid-rows-[auto_1fr] neon-border neon-glow-sm">
+        <DialogHeader className="px-6 pt-6 pb-4 border-b shrink-0">
           <DialogTitle className="text-2xl neon-text" style={{ fontFamily: 'Orbitron' }}>
             Complete Your Purchase
           </DialogTitle>
@@ -61,7 +61,7 @@ export function PaymentDialog({ open, onOpenChange, product }: PaymentDialogProp
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4">
+        <div className="overflow-y-auto px-6 py-4 space-y-4 min-h-0">
           <div className="bg-card p-4 rounded-lg neon-border">
             <div className="flex items-center justify-between mb-2">
               <span className="font-semibold">Product:</span>
@@ -155,7 +155,7 @@ export function PaymentDialog({ open, onOpenChange, product }: PaymentDialogProp
             </div>
           </div>
 
-          <div className="bg-primary/10 p-4 rounded-lg border border-primary/30">
+          <div className="bg-primary/10 p-4 rounded-lg border border-primary/30 mb-2">
             <p className="text-sm text-center">
               After payment, please send a screenshot and your IMVU ID in the ticket or through the upload form for confirmation.
             </p>
