@@ -13,6 +13,13 @@ import { Star, ArrowLeft, Check, Gift, Monitor, Smartphone, User, ShieldCheck, H
 import { useCart } from "@/contexts/CartContext";
 import { useToast } from "@/hooks/use-toast";
 const getImageForProduct = (imageUrl: string) => {
+  // Handle uploaded assets (from admin) - use backend URL
+  if (imageUrl.startsWith('/uploaded_assets/')) {
+    const API_URL = import.meta.env.VITE_API_URL || '';
+    return `${API_URL}${imageUrl}`;
+  }
+  
+  // Handle static images
   if (imageUrl.includes("Premium_trigger")) return "/images/Premium_trigger_product_icon_bce9e655.png";
   if (imageUrl.includes("Gifting_trigger")) return "/images/Gifting_trigger_icon_d54ee4bc.png";
   if (imageUrl.includes("Virtual_room")) return "/images/Virtual_room_product_preview_0f22295e.png";
@@ -103,7 +110,7 @@ export default function ProductDetails() {
               <div className="relative aspect-square bg-gradient-to-b from-purple-900/20 to-black">
                 {product.videoUrl && product.category === "rooms" ? (
                   <video
-                    src={product.videoUrl}
+                    src={product.videoUrl.startsWith('/uploaded_assets/') ? `${import.meta.env.VITE_API_URL || ''}${product.videoUrl}` : product.videoUrl}
                     controls={true}
                     autoPlay={true}
                     loop={true}
@@ -113,7 +120,7 @@ export default function ProductDetails() {
                   />
                 ) : (
                   <img
-                    src={product.imageUrl.startsWith('/') ? product.imageUrl : getImageForProduct(product.imageUrl)}
+                    src={product.imageUrl.startsWith('/uploaded_assets/') ? `${import.meta.env.VITE_API_URL || ''}${product.imageUrl}` : (product.imageUrl.startsWith('/') ? product.imageUrl : getImageForProduct(product.imageUrl))}
                     alt={product.name}
                     className="w-full h-full object-cover"
                     data-testid="img-product"
