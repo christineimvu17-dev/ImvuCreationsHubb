@@ -9,7 +9,9 @@ import { PaymentDialog } from "@/components/PaymentDialog";
 import { ReviewForm } from "@/components/ReviewForm";
 import { ReviewList } from "@/components/ReviewList";
 import type { ProductWithRatings } from "@shared/schema";
-import { Star, ArrowLeft, Check, Gift, Monitor, Smartphone, User, ShieldCheck, Home } from "lucide-react";
+import { Star, ArrowLeft, Check, Gift, Monitor, Smartphone, User, ShieldCheck, Home, ShoppingCart } from "lucide-react";
+import { useCart } from "@/contexts/CartContext";
+import { useToast } from "@/hooks/use-toast";
 import triggerImage from "@assets/generated_images/Premium_trigger_product_icon_bce9e655.png";
 import roomImage from "@assets/generated_images/Virtual_room_product_preview_0f22295e.png";
 import giftTriggerImage from "@assets/generated_images/Gifting_trigger_icon_d54ee4bc.png";
@@ -27,12 +29,24 @@ export default function ProductDetails() {
   const [, params] = useRoute("/product/:id");
   const productId = params?.id;
   const [paymentDialogOpen, setPaymentDialogOpen] = useState(false);
+  const { addToCart } = useCart();
+  const { toast } = useToast();
 
   const { data: products, isLoading } = useQuery<ProductWithRatings[]>({
     queryKey: ["/api/products"],
   });
 
   const product = products?.find(p => p.id === productId);
+
+  const handleAddToCart = () => {
+    if (product) {
+      addToCart(product);
+      toast({
+        title: "Added to Cart",
+        description: `${product.name} has been added to your cart`,
+      });
+    }
+  };
 
   if (isLoading) {
     return (
@@ -166,6 +180,25 @@ export default function ProductDetails() {
               </div>
             </div>
 
+            <div className="flex gap-2">
+              <Button
+                className="flex-1 h-14 text-lg bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold shadow-lg shadow-purple-500/50 neon-glow"
+                onClick={() => setPaymentDialogOpen(true)}
+                data-testid="button-buy-now"
+              >
+                Buy Now - ${(product.price / 100).toFixed(2)}
+              </Button>
+              <Button
+                variant="outline"
+                size="icon"
+                className="h-14 w-14 neon-border"
+                onClick={handleAddToCart}
+                data-testid="button-add-to-cart"
+              >
+                <ShoppingCart className="h-6 w-6" />
+              </Button>
+            </div>
+
             <Card className="neon-border bg-black/40 backdrop-blur-sm">
               <CardHeader>
                 <CardTitle className="font-exo2 flex items-center gap-2">
@@ -255,14 +288,6 @@ export default function ProductDetails() {
                 </div>
               </CardContent>
             </Card>
-
-            <Button
-              className="w-full h-14 text-lg bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold shadow-lg shadow-purple-500/50 neon-glow"
-              onClick={() => setPaymentDialogOpen(true)}
-              data-testid="button-buy-now"
-            >
-              Buy Now - ${(product.price / 100).toFixed(2)}
-            </Button>
           </div>
         </div>
 

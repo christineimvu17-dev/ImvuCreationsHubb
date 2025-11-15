@@ -89,24 +89,23 @@ export default function Shop() {
         </CardContent>
         <CardFooter className="p-5 pt-0 flex flex-col gap-3">
           <div className="flex gap-2 w-full">
-            <Button
-              onClick={() => handleAddToCart(product)}
-              className="flex-1 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold shadow-lg shadow-purple-500/50 neon-glow gap-2"
-              data-testid={`button-add-to-cart-${product.id}`}
-            >
-              <ShoppingCart className="h-4 w-4" />
-              Add to Cart
-            </Button>
-            <Link href={`/product/${product.id}`}>
+            <Link href={`/product/${product.id}`} className="flex-1">
               <Button
-                variant="outline"
-                size="icon"
-                className="neon-border"
-                data-testid={`button-view-${product.id}`}
+                className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold shadow-lg shadow-purple-500/50 neon-glow"
+                data-testid={`button-buy-${product.id}`}
               >
-                <Eye className="h-4 w-4" />
+                Buy Now
               </Button>
             </Link>
+            <Button
+              onClick={() => handleAddToCart(product)}
+              variant="outline"
+              size="icon"
+              className="neon-border"
+              data-testid={`button-add-to-cart-${product.id}`}
+            >
+              <ShoppingCart className="h-5 w-5" />
+            </Button>
           </div>
           
           <div className="flex items-center justify-center gap-3 text-gray-400">
