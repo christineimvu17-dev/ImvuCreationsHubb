@@ -19,7 +19,13 @@ const getImageForProduct = (imageUrl: string) => {
     return `${API_URL}${imageUrl}`;
   }
   
-  // Handle static images
+  // Handle attached assets (generated images) - convert to public images path
+  if (imageUrl.startsWith('/attached_assets/generated_images/')) {
+    const filename = imageUrl.split('/').pop();
+    return `/images/${filename}`;
+  }
+  
+  // Handle static images (fallback patterns)
   if (imageUrl.includes("Premium_trigger")) return "/images/Premium_trigger_product_icon_bce9e655.png";
   if (imageUrl.includes("Gifting_trigger")) return "/images/Gifting_trigger_icon_d54ee4bc.png";
   if (imageUrl.includes("Virtual_room")) return "/images/Virtual_room_product_preview_0f22295e.png";
