@@ -153,3 +153,16 @@ Preferred communication style: Simple, everyday language.
 - Admin can approve (publish) or reject (delete) reviews via dashboard
 - Only approved reviews count toward product ratings and appear to customers
 - Review aggregations (average rating, count) only include approved reviews for accuracy
+
+**How It Works Section**: Reusable component (`client/src/components/HowItWorks.tsx`) that explains the product delivery process with security assurance:
+- Displays 6-step delivery process with icons and descriptions:
+  1. Choose Your Product - Browse catalog
+  2. Complete Payment - Secure checkout
+  3. Secure Processing - Military-grade encryption
+  4. Instant Delivery - Product delivered to IMVU account
+  5. Verified & Safe - Security team monitoring
+  6. Auto-Deleted - Credentials automatically deleted after delivery
+- Alternating neon purple and blue styling for visual variety
+- Security assurance banner emphasizing bank-level encryption and automatic credential deletion
+- Added to both Home page and About page for maximum visibility
+- Builds customer trust by transparently explaining the delivery and security process
