@@ -6,7 +6,9 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
 import type { ProductWithRatings } from "@shared/schema";
-import { Monitor, Smartphone, Check, Gift } from "lucide-react";
+import { Monitor, Smartphone, Check, Gift, ShoppingCart, Eye } from "lucide-react";
+import { useCart } from "@/contexts/CartContext";
+import { useToast } from "@/hooks/use-toast";
 import triggerImage from "@assets/generated_images/Premium_trigger_product_icon_bce9e655.png";
 import roomImage from "@assets/generated_images/Virtual_room_product_preview_0f22295e.png";
 import giftTriggerImage from "@assets/generated_images/Gifting_trigger_icon_d54ee4bc.png";
@@ -24,10 +26,20 @@ export default function Shop() {
   const { data: products = [], isLoading } = useQuery<ProductWithRatings[]>({
     queryKey: ["/api/products"],
   });
+  const { addToCart } = useCart();
+  const { toast } = useToast();
 
   const triggerProducts = products.filter(p => p.category === "triggers");
   const roomProducts = products.filter(p => p.category === "rooms");
   const bundleProducts = products.filter(p => p.category === "bundles");
+
+  const handleAddToCart = (product: ProductWithRatings) => {
+    addToCart(product);
+    toast({
+      title: "Added to Cart",
+      description: `${product.name} has been added to your cart`,
+    });
+  };
 
   const ProductCard = ({ product }: { product: ProductWithRatings }) => {
     const features = product.features || [];
@@ -76,14 +88,26 @@ export default function Shop() {
           )}
         </CardContent>
         <CardFooter className="p-5 pt-0 flex flex-col gap-3">
-          <Link href={`/product/${product.id}`} className="w-full">
+          <div className="flex gap-2 w-full">
             <Button
-              className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold shadow-lg shadow-purple-500/50 neon-glow"
-              data-testid={`button-buy-${product.id}`}
+              onClick={() => handleAddToCart(product)}
+              className="flex-1 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold shadow-lg shadow-purple-500/50 neon-glow gap-2"
+              data-testid={`button-add-to-cart-${product.id}`}
             >
-              Buy Now
+              <ShoppingCart className="h-4 w-4" />
+              Add to Cart
             </Button>
-          </Link>
+            <Link href={`/product/${product.id}`}>
+              <Button
+                variant="outline"
+                size="icon"
+                className="neon-border"
+                data-testid={`button-view-${product.id}`}
+              >
+                <Eye className="h-4 w-4" />
+              </Button>
+            </Link>
+          </div>
           
           <div className="flex items-center justify-center gap-3 text-gray-400">
             {product.pcSupport && (

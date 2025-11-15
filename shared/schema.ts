@@ -38,14 +38,28 @@ export const orders = pgTable("orders", {
   orderId: text("order_id").notNull().unique(),
   imvuId: text("imvu_id").notNull(),
   email: text("email").notNull(),
-  productId: varchar("product_id").notNull(),
-  productName: text("product_name").notNull(),
+  productId: varchar("product_id"),
+  productName: text("product_name"),
+  subtotal: integer("subtotal").notNull().default(0),
+  total: integer("total").notNull().default(0),
   paymentMethod: text("payment_method").notNull(),
   transactionId: text("transaction_id"),
   screenshotUrl: text("screenshot_url"),
   status: text("status").notNull().default("pending"),
   createdAt: timestamp("created_at").notNull().default(sql`now()`),
   updatedAt: timestamp("updated_at").notNull().default(sql`now()`),
+});
+
+export const orderItems = pgTable("order_items", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  orderId: varchar("order_id").notNull(),
+  productId: varchar("product_id").notNull(),
+  productName: text("product_name").notNull(),
+  productImageUrl: text("product_image_url"),
+  unitPrice: integer("unit_price").notNull(),
+  quantity: integer("quantity").notNull().default(1),
+  lineTotal: integer("line_total").notNull(),
+  createdAt: timestamp("created_at").notNull().default(sql`now()`),
 });
 
 export const insertOrderSchema = createInsertSchema(orders).omit({
@@ -55,8 +69,19 @@ export const insertOrderSchema = createInsertSchema(orders).omit({
   updatedAt: true,
 });
 
+export const insertOrderItemSchema = createInsertSchema(orderItems).omit({
+  id: true,
+  createdAt: true,
+});
+
 export type InsertOrder = z.infer<typeof insertOrderSchema>;
 export type Order = typeof orders.$inferSelect;
+export type InsertOrderItem = z.infer<typeof insertOrderItemSchema>;
+export type OrderItem = typeof orderItems.$inferSelect;
+
+export type OrderWithItems = Order & {
+  items: OrderItem[];
+};
 
 export const chatMessages = pgTable("chat_messages", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),

@@ -15,6 +15,7 @@ import AdminDashboard from "@/pages/AdminDashboard";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { ChatWidget } from "@/components/ChatWidget";
+import { CartProvider } from "@/contexts/CartContext";
 
 function Router() {
   return (
@@ -39,15 +40,17 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <div className="flex flex-col min-h-screen">
-          <Header />
-          <main className="flex-1">
-            <Router />
-          </main>
-          <Footer />
-          <ChatWidget />
-        </div>
-        <Toaster />
+        <CartProvider>
+          <div className="flex flex-col min-h-screen">
+            <Header />
+            <main className="flex-1">
+              <Router />
+            </main>
+            <Footer />
+            <ChatWidget />
+          </div>
+          <Toaster />
+        </CartProvider>
       </TooltipProvider>
     </QueryClientProvider>
   );

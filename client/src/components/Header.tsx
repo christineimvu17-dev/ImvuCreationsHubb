@@ -1,10 +1,15 @@
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
-import { ShoppingBag, Home, Info, MessageCircle, Search } from "lucide-react";
-import { SiDiscord, SiInstagram } from "react-icons/si";
+import { Badge } from "@/components/ui/badge";
+import { ShoppingBag, Home, Info, MessageCircle, Search, ShoppingCart } from "lucide-react";
+import { useCart } from "@/contexts/CartContext";
+import { useState } from "react";
+import { CartSheet } from "@/components/CartSheet";
 
 export function Header() {
   const [location] = useLocation();
+  const { itemCount } = useCart();
+  const [isCartOpen, setIsCartOpen] = useState(false);
 
   const isActive = (path: string) => location === path;
 
@@ -73,28 +78,28 @@ export function Header() {
         </nav>
 
         <div className="flex items-center gap-2">
-          <a
-            href="https://discord.gg/NR4Z9zeBW2"
-            target="_blank"
-            rel="noopener noreferrer"
-            data-testid="link-discord-header"
+          <Button
+            variant="ghost"
+            size="icon"
+            className="relative"
+            onClick={() => setIsCartOpen(true)}
+            data-testid="button-cart"
           >
-            <Button variant="ghost" size="icon" className="neon-glow-sm">
-              <SiDiscord className="h-5 w-5" />
-            </Button>
-          </a>
-          <a
-            href="https://www.instagram.com/imvu_trustedshop"
-            target="_blank"
-            rel="noopener noreferrer"
-            data-testid="link-instagram-header"
-          >
-            <Button variant="ghost" size="icon" className="neon-glow-sm">
-              <SiInstagram className="h-5 w-5" />
-            </Button>
-          </a>
+            <ShoppingCart className="h-5 w-5" />
+            {itemCount > 0 && (
+              <Badge
+                variant="default"
+                className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs neon-glow"
+                data-testid="badge-cart-count"
+              >
+                {itemCount}
+              </Badge>
+            )}
+          </Button>
         </div>
       </div>
+
+      <CartSheet open={isCartOpen} onOpenChange={setIsCartOpen} />
     </header>
   );
 }
