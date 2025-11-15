@@ -359,14 +359,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.patch("/api/admin/products/:id", requireAdmin, async (req, res) => {
     try {
       const { id } = req.params;
-      const product = await storage.updateProduct(id, req.body);
+      const validatedData = insertProductSchema.partial().parse(req.body);
+      const product = await storage.updateProduct(id, validatedData);
       
       if (!product) {
         return res.status(404).json({ error: "Product not found" });
       }
 
       res.json({ success: true, product });
-    } catch (error) {
+    } catch (error: any) {
+      if (error.name === "ZodError") {
+        const validationError = fromZodError(error);
+        return res.status(400).json({ error: validationError.message });
+      }
       res.status(500).json({ error: "Failed to update product" });
     }
   });
