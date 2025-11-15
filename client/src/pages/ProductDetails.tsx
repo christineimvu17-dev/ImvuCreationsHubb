@@ -229,15 +229,17 @@ export default function ProductDetails() {
                     </div>
                   </div>
                 </div>
-                <div className="flex items-center gap-3" data-testid="requirement-room">
-                  <Home className="w-5 h-5 text-purple-400" />
-                  <div>
-                    <div className="text-sm text-gray-400">Sex Room Needed</div>
-                    <div className="font-medium">
-                      {product.sexRoomNeeded ? "Yes" : "Must have sex room"}
+                {product.category !== "rooms" && (
+                  <div className="flex items-center gap-3" data-testid="requirement-room">
+                    <Home className="w-5 h-5 text-purple-400" />
+                    <div>
+                      <div className="text-sm text-gray-400">Sex Room Needed</div>
+                      <div className="font-medium">
+                        {product.sexRoomNeeded ? "Yes" : "Must have sex room"}
+                      </div>
                     </div>
                   </div>
-                </div>
+                )}
                 <div className="border-t border-purple-500/20 pt-3 mt-3">
                   <div className="text-sm text-gray-400 mb-2">Platform Support</div>
                   <div className="flex gap-4">

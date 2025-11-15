@@ -112,6 +112,7 @@ async function uploadToDiscord(webhookUrl: string, file: Buffer, filename: strin
 
 export async function registerRoutes(app: Express): Promise<Server> {
   app.use("/uploaded_assets", express.static(path.join(process.cwd(), "uploaded_assets")));
+  app.use("/attached_assets", express.static(path.join(process.cwd(), "attached_assets")));
 
   app.get("/api/products", async (req, res) => {
     try {
