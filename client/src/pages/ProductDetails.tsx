@@ -95,10 +95,10 @@ export default function ProductDetails() {
                 {product.videoUrl && product.category === "rooms" ? (
                   <video
                     src={product.videoUrl}
-                    controls
-                    autoPlay
-                    loop
-                    muted
+                    controls={true}
+                    autoPlay={true}
+                    loop={true}
+                    muted={true}
                     className="w-full h-full object-cover"
                     data-testid="video-product"
                   />
