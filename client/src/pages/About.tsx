@@ -1,5 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Shield, Zap, Users, Award } from "lucide-react";
+import HowItWorks from "@/components/HowItWorks";
 
 export default function About() {
   return (
@@ -92,6 +93,8 @@ export default function About() {
           </p>
         </div>
       </div>
+
+      <HowItWorks />
     </div>
   );
 }

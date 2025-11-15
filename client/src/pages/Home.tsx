@@ -4,6 +4,7 @@ import { Link } from "wouter";
 import { ShoppingBag, Users, Zap } from "lucide-react";
 import { SiDiscord } from "react-icons/si";
 import heroImage from "@assets/generated_images/Futuristic_IMVU_hero_background_36af4450.png";
+import HowItWorks from "@/components/HowItWorks";
 
 export default function Home() {
   return (
@@ -104,6 +105,8 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      <HowItWorks />
 
       <section className="py-20 bg-card/50">
         <div className="container mx-auto px-4 text-center">
