@@ -14,7 +14,6 @@ import Contact from "@/pages/Contact";
 import AdminDashboard from "@/pages/AdminDashboard";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
-import { ChatWidget } from "@/components/ChatWidget";
 import { CartProvider } from "@/contexts/CartContext";
 
 function Router() {
@@ -47,7 +46,6 @@ function App() {
               <Router />
             </main>
             <Footer />
-            <ChatWidget />
           </div>
           <Toaster />
         </CartProvider>
