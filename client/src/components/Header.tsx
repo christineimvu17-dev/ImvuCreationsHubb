@@ -1,7 +1,7 @@
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ShoppingBag, Home, Info, MessageCircle, Search, ShoppingCart, Menu, User } from "lucide-react";
+import { ShoppingBag, Home, Info, MessageCircle, Search, ShoppingCart, Menu, User, Star } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 import { useState } from "react";
 import { CartSheet } from "@/components/CartSheet";
@@ -81,6 +81,16 @@ export function Header() {
               Contact
             </Button>
           </Link>
+          <Link href="/reviews" data-testid="link-reviews">
+            <Button
+              variant={isActive("/reviews") ? "default" : "ghost"}
+              size="default"
+              className="gap-2"
+            >
+              <Star className="h-4 w-4" />
+              Reviews
+            </Button>
+          </Link>
         </nav>
 
         <div className="flex items-center gap-2">
@@ -148,7 +158,7 @@ export function Header() {
               <DropdownMenuItem asChild>
                 <Link href="/reviews" data-testid="menu-item-reviews">
                   <div className="flex items-center gap-2 w-full cursor-pointer">
-                    <MessageCircle className="h-4 w-4" />
+                    <Star className="h-4 w-4" />
                     <span>Reviews</span>
                   </div>
                 </Link>
