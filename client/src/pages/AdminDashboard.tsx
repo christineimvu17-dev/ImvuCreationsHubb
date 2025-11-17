@@ -42,7 +42,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
-import { Lock, Search, Filter, Plus, Edit, Trash2, Check, X, Package, ShoppingCart, Star } from "lucide-react";
+import { Lock, Search, Filter, Plus, Edit, Trash2, Check, X, Package, ShoppingCart, Star, CheckCircle, Clock } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { insertProductSchema } from "@shared/schema";
@@ -1453,7 +1453,15 @@ function SiteReviewsTab({ authToken }: { authToken: string }) {
   const { toast } = useToast();
 
   const { data: siteReviews, isLoading } = useQuery<SiteReview[]>({
-    queryKey: ["/api/site-reviews"],
+    queryKey: ["/api/admin/site-reviews"],
+    enabled: !!authToken,
+    queryFn: async () => {
+      const response = await fetch("/api/admin/site-reviews", {
+        headers: { Authorization: `Bearer ${authToken}` },
+      });
+      if (!response.ok) throw new Error("Failed to fetch site reviews");
+      return response.json();
+    },
   });
 
   const addReviewForm = useForm({
@@ -1466,7 +1474,7 @@ function SiteReviewsTab({ authToken }: { authToken: string }) {
   });
 
   const addReviewMutation = useMutation({
-    mutationFn: async (data: InsertSiteReview) => {
+    mutationFn: async (data: InsertSiteReview & { approved: boolean }) => {
       const response = await fetch("/api/admin/site-reviews", {
         method: "POST",
         headers: {
@@ -1482,6 +1490,7 @@ function SiteReviewsTab({ authToken }: { authToken: string }) {
       return response.json();
     },
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/site-reviews"] });
       queryClient.invalidateQueries({ queryKey: ["/api/site-reviews"] });
       setShowAddDialog(false);
       addReviewForm.reset();
@@ -1495,6 +1504,36 @@ function SiteReviewsTab({ authToken }: { authToken: string }) {
         variant: "destructive",
         title: "Error",
         description: error.message,
+      });
+    },
+  });
+
+  const approveReviewMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const response = await fetch(`/api/admin/site-reviews/${id}/approve`, {
+        method: "PATCH",
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+        },
+      });
+      if (!response.ok) {
+        throw new Error("Failed to approve review");
+      }
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/site-reviews"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/site-reviews"] });
+      toast({
+        title: "Review Approved",
+        description: "The site review has been approved and is now visible to customers",
+      });
+    },
+    onError: () => {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to approve review",
       });
     },
   });
@@ -1513,6 +1552,7 @@ function SiteReviewsTab({ authToken }: { authToken: string }) {
       return response.json();
     },
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/site-reviews"] });
       queryClient.invalidateQueries({ queryKey: ["/api/site-reviews"] });
       setShowDeleteDialog(false);
       setSelectedReview(null);
@@ -1536,8 +1576,9 @@ function SiteReviewsTab({ authToken }: { authToken: string }) {
       reviewText: data.reviewText,
       rating: data.rating,
       displayDate: data.displayDate,
+      approved: true,
     };
-    addReviewMutation.mutate(reviewData as InsertSiteReview);
+    addReviewMutation.mutate(reviewData);
   };
 
   const handleDeleteClick = (review: SiteReview) => {
@@ -1582,7 +1623,7 @@ function SiteReviewsTab({ authToken }: { authToken: string }) {
                 className="p-4 bg-black/50 rounded-lg border border-purple-500/30"
                 data-testid={`site-review-${review.id}`}
               >
-                <div className="flex items-start justify-between">
+                <div className="flex items-start justify-between gap-4">
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-2">
                       <div className="font-medium text-lg" data-testid={`text-reviewer-${review.id}`}>
@@ -1591,6 +1632,17 @@ function SiteReviewsTab({ authToken }: { authToken: string }) {
                       <div className="text-purple-400 text-lg" data-testid={`text-rating-${review.id}`}>
                         {getRatingStars(review.rating)}
                       </div>
+                      {review.approved ? (
+                        <div className="flex items-center gap-1 text-green-400 text-sm" data-testid={`badge-approved-${review.id}`}>
+                          <CheckCircle className="w-4 h-4" />
+                          <span>Approved</span>
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-1 text-yellow-400 text-sm" data-testid={`badge-pending-${review.id}`}>
+                          <Clock className="w-4 h-4" />
+                          <span>Pending Approval</span>
+                        </div>
+                      )}
                     </div>
                     <p className="text-gray-300 mb-2" data-testid={`text-review-${review.id}`}>
                       {review.reviewText}
@@ -1599,15 +1651,28 @@ function SiteReviewsTab({ authToken }: { authToken: string }) {
                       Reviewed on: {format(new Date(review.displayDate), "dd/MM/yyyy")}
                     </div>
                   </div>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleDeleteClick(review)}
-                    data-testid={`button-delete-review-${review.id}`}
-                    className="border-red-500/30 text-red-400 hover:bg-red-500/10"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
+                  <div className="flex gap-2">
+                    {!review.approved && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => approveReviewMutation.mutate(review.id)}
+                        data-testid={`button-approve-review-${review.id}`}
+                        className="border-green-500/30 text-green-400 hover:bg-green-500/10"
+                      >
+                        <CheckCircle className="w-4 h-4" />
+                      </Button>
+                    )}
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleDeleteClick(review)}
+                      data-testid={`button-delete-review-${review.id}`}
+                      className="border-red-500/30 text-red-400 hover:bg-red-500/10"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </div>
                 </div>
               </div>
             ))}

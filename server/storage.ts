@@ -61,6 +61,8 @@ export interface IStorage {
   
   createSiteReview(review: InsertSiteReview): Promise<SiteReview>;
   getAllSiteReviews(): Promise<SiteReview[]>;
+  getApprovedSiteReviews(): Promise<SiteReview[]>;
+  approveSiteReview(id: string): Promise<SiteReview | undefined>;
   deleteSiteReview(id: string): Promise<void>;
 }
 
@@ -264,10 +266,13 @@ export class DatabaseStorage implements IStorage {
     return newAdmin;
   }
 
-  async createSiteReview(review: InsertSiteReview): Promise<SiteReview> {
+  async createSiteReview(review: InsertSiteReview & { approved?: boolean }): Promise<SiteReview> {
     const [newReview] = await db
       .insert(siteReviewsTable)
-      .values(review)
+      .values({
+        ...review,
+        approved: review.approved !== undefined ? review.approved : false,
+      })
       .returning();
     return newReview;
   }
@@ -277,6 +282,23 @@ export class DatabaseStorage implements IStorage {
       .select()
       .from(siteReviewsTable)
       .orderBy(desc(siteReviewsTable.displayDate));
+  }
+
+  async getApprovedSiteReviews(): Promise<SiteReview[]> {
+    return db
+      .select()
+      .from(siteReviewsTable)
+      .where(eq(siteReviewsTable.approved, true))
+      .orderBy(desc(siteReviewsTable.displayDate));
+  }
+
+  async approveSiteReview(id: string): Promise<SiteReview | undefined> {
+    const [approvedReview] = await db
+      .update(siteReviewsTable)
+      .set({ approved: true })
+      .where(eq(siteReviewsTable.id, id))
+      .returning();
+    return approvedReview;
   }
 
   async deleteSiteReview(id: string): Promise<void> {

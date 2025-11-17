@@ -158,16 +158,28 @@ export const siteReviews = pgTable("site_reviews", {
   reviewText: text("review_text").notNull(),
   rating: integer("rating").notNull(),
   displayDate: timestamp("display_date").notNull(),
+  approved: boolean("approved").notNull().default(false),
   createdAt: timestamp("created_at").notNull().default(sql`now()`),
 });
 
 export const insertSiteReviewSchema = createInsertSchema(siteReviews).omit({
   id: true,
+  approved: true,
   createdAt: true,
 }).extend({
   rating: z.number().min(1).max(5),
   displayDate: z.union([z.string(), z.date()]).transform((val) => new Date(val)),
 });
 
+export const insertPublicSiteReviewSchema = createInsertSchema(siteReviews).omit({
+  id: true,
+  approved: true,
+  displayDate: true,
+  createdAt: true,
+}).extend({
+  rating: z.number().min(1).max(5),
+});
+
 export type InsertSiteReview = z.infer<typeof insertSiteReviewSchema>;
+export type InsertPublicSiteReview = z.infer<typeof insertPublicSiteReviewSchema>;
 export type SiteReview = typeof siteReviews.$inferSelect;

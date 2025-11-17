@@ -451,6 +451,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/site-reviews", async (req, res) => {
     try {
+      const reviews = await storage.getApprovedSiteReviews();
+      res.json(reviews);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch site reviews" });
+    }
+  });
+
+  app.post("/api/site-reviews", async (req, res) => {
+    try {
+      const { insertPublicSiteReviewSchema } = await import("@shared/schema");
+      const validatedData = insertPublicSiteReviewSchema.parse(req.body);
+      const review = await storage.createSiteReview({
+        ...validatedData,
+        displayDate: new Date(),
+      });
+      res.json({ success: true, review, message: "Thank you for your review! It will be published after approval." });
+    } catch (error: any) {
+      if (error.name === "ZodError") {
+        const validationError = fromZodError(error);
+        return res.status(400).json({ error: validationError.message });
+      }
+      res.status(500).json({ error: "Failed to submit review" });
+    }
+  });
+
+  app.get("/api/admin/site-reviews", requireAdmin, async (req, res) => {
+    try {
       const reviews = await storage.getAllSiteReviews();
       res.json(reviews);
     } catch (error) {
@@ -469,6 +496,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: validationError.message });
       }
       res.status(500).json({ error: "Failed to create site review" });
+    }
+  });
+
+  app.patch("/api/admin/site-reviews/:id/approve", requireAdmin, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const review = await storage.approveSiteReview(id);
+      res.json({ success: true, review });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to approve site review" });
     }
   });
 

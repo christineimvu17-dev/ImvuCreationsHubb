@@ -1,13 +1,68 @@
-import { useQuery } from "@tanstack/react-query";
-import { Card, CardContent } from "@/components/ui/card";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Star } from "lucide-react";
 import { format } from "date-fns";
+import { useForm } from "react-hook-form";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useToast } from "@/hooks/use-toast";
+import { apiRequest, queryClient } from "@/lib/queryClient";
 import type { SiteReview } from "@shared/schema";
+import { useState } from "react";
 
 export default function Reviews() {
   const { data: reviews, isLoading } = useQuery<SiteReview[]>({
     queryKey: ["/api/site-reviews"],
   });
+  const { toast } = useToast();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const form = useForm({
+    defaultValues: {
+      reviewerName: "",
+      rating: 5,
+      reviewText: "",
+    },
+  });
+
+  const submitReviewMutation = useMutation({
+    mutationFn: async (data: { reviewerName: string; rating: number; reviewText: string }) => {
+      const response = await fetch("/api/site-reviews", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || "Failed to submit review");
+      }
+      return response.json();
+    },
+    onSuccess: (data) => {
+      toast({
+        title: "Review Submitted!",
+        description: data.message || "Thank you for your review! It will be published after approval.",
+      });
+      form.reset();
+      setIsSubmitting(false);
+    },
+    onError: (error: Error) => {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error.message,
+      });
+      setIsSubmitting(false);
+    },
+  });
+
+  const handleSubmitReview = (data: any) => {
+    setIsSubmitting(true);
+    submitReviewMutation.mutate(data);
+  };
 
   const getRatingStars = (rating: number) => {
     return Array(5)
@@ -35,6 +90,108 @@ export default function Reviews() {
             See what our satisfied customers have to say about BM Creations
           </p>
         </div>
+
+        <Card className="max-w-4xl mx-auto mb-12 bg-black/40 border-purple-500/30" data-testid="review-submission-form">
+          <CardHeader>
+            <CardTitle className="text-2xl font-orbitron neon-text text-center">
+              Share Your Experience
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(handleSubmitReview)} className="space-y-6">
+                <FormField
+                  control={form.control}
+                  name="reviewerName"
+                  rules={{ required: "Name is required" }}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-gray-300">Your Name</FormLabel>
+                      <FormControl>
+                        <Input
+                          {...field}
+                          placeholder="Enter your name"
+                          className="bg-black/50 border-purple-500/30 text-white"
+                          data-testid="input-reviewer-name"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="rating"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-gray-300">Rating</FormLabel>
+                      <Select
+                        onValueChange={(value) => field.onChange(parseInt(value))}
+                        value={field.value.toString()}
+                      >
+                        <FormControl>
+                          <SelectTrigger
+                            className="bg-black/50 border-purple-500/30 text-white"
+                            data-testid="select-rating"
+                          >
+                            <SelectValue />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent className="bg-black border-purple-500/30">
+                          <SelectItem value="5">⭐⭐⭐⭐⭐ (5 stars)</SelectItem>
+                          <SelectItem value="4">⭐⭐⭐⭐ (4 stars)</SelectItem>
+                          <SelectItem value="3">⭐⭐⭐ (3 stars)</SelectItem>
+                          <SelectItem value="2">⭐⭐ (2 stars)</SelectItem>
+                          <SelectItem value="1">⭐ (1 star)</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="reviewText"
+                  rules={{ required: "Review text is required", minLength: { value: 10, message: "Review must be at least 10 characters" } }}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-gray-300">Your Review</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          {...field}
+                          placeholder="Share your experience with BM Creations..."
+                          rows={5}
+                          className="bg-black/50 border-purple-500/30 text-white resize-none"
+                          data-testid="textarea-review-text"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <Button
+                  type="submit"
+                  className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+                  disabled={isSubmitting}
+                  data-testid="button-submit-review"
+                >
+                  {isSubmitting ? "Submitting..." : "Submit Review"}
+                </Button>
+
+                <p className="text-sm text-gray-400 text-center">
+                  Your review will be published after approval by our team
+                </p>
+              </form>
+            </Form>
+          </CardContent>
+        </Card>
+
+        <h2 className="text-3xl font-orbitron font-bold neon-text text-center mb-8">
+          Verified Customer Reviews
+        </h2>
 
         {isLoading ? (
           <div className="text-center py-12">
