@@ -6,8 +6,6 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PaymentDialog } from "@/components/PaymentDialog";
-import { ReviewForm } from "@/components/ReviewForm";
-import { ReviewList } from "@/components/ReviewList";
 import type { ProductWithRatings } from "@shared/schema";
 import { Star, ArrowLeft, Check, Gift, Monitor, Smartphone, User, ShieldCheck, Home, ShoppingCart } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
@@ -286,19 +284,6 @@ export default function ProductDetails() {
                 </div>
               </CardContent>
             </Card>
-          </div>
-        </div>
-
-        <div className="space-y-8">
-          <div className="border-t border-purple-500/30 pt-8">
-            <h2 className="text-3xl font-orbitron font-bold mb-6 neon-text">Customer Reviews</h2>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <ReviewList productId={product.id} />
-              <ReviewForm
-                productId={product.id}
-                productName={product.name}
-              />
-            </div>
           </div>
         </div>
       </div>

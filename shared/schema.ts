@@ -151,3 +151,23 @@ export const insertAdminSchema = createInsertSchema(admins).omit({
 
 export type InsertAdmin = z.infer<typeof insertAdminSchema>;
 export type Admin = typeof admins.$inferSelect;
+
+export const siteReviews = pgTable("site_reviews", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  reviewerName: text("reviewer_name").notNull(),
+  reviewText: text("review_text").notNull(),
+  rating: integer("rating").notNull(),
+  displayDate: timestamp("display_date").notNull(),
+  createdAt: timestamp("created_at").notNull().default(sql`now()`),
+});
+
+export const insertSiteReviewSchema = createInsertSchema(siteReviews).omit({
+  id: true,
+  createdAt: true,
+}).extend({
+  rating: z.number().min(1).max(5),
+  displayDate: z.union([z.string(), z.date()]).transform((val) => new Date(val)),
+});
+
+export type InsertSiteReview = z.infer<typeof insertSiteReviewSchema>;
+export type SiteReview = typeof siteReviews.$inferSelect;

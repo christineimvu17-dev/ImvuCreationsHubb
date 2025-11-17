@@ -4,7 +4,7 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import multer from "multer";
 import { randomBytes } from "crypto";
-import { insertOrderSchema, insertChatMessageSchema, insertContactFormSchema, insertReviewSchema, insertProductSchema } from "@shared/schema";
+import { insertOrderSchema, insertChatMessageSchema, insertContactFormSchema, insertReviewSchema, insertProductSchema, insertSiteReviewSchema } from "@shared/schema";
 import { fromZodError } from "zod-validation-error";
 import path from "path";
 import fs from "fs";
@@ -446,6 +446,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(reviews);
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch reviews" });
+    }
+  });
+
+  app.get("/api/site-reviews", async (req, res) => {
+    try {
+      const reviews = await storage.getAllSiteReviews();
+      res.json(reviews);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch site reviews" });
+    }
+  });
+
+  app.post("/api/admin/site-reviews", requireAdmin, async (req, res) => {
+    try {
+      const validatedData = insertSiteReviewSchema.parse(req.body);
+      const review = await storage.createSiteReview(validatedData);
+      res.json({ success: true, review });
+    } catch (error: any) {
+      if (error.name === "ZodError") {
+        const validationError = fromZodError(error);
+        return res.status(400).json({ error: validationError.message });
+      }
+      res.status(500).json({ error: "Failed to create site review" });
+    }
+  });
+
+  app.delete("/api/admin/site-reviews/:id", requireAdmin, async (req, res) => {
+    try {
+      const { id } = req.params;
+      await storage.deleteSiteReview(id);
+      res.json({ success: true });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to delete site review" });
     }
   });
 

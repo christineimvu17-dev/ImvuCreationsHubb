@@ -12,6 +12,7 @@ import About from "@/pages/About";
 import TrackOrder from "@/pages/TrackOrder";
 import Contact from "@/pages/Contact";
 import AdminDashboard from "@/pages/AdminDashboard";
+import Reviews from "@/pages/Reviews";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { CartProvider } from "@/contexts/CartContext";
@@ -23,6 +24,7 @@ function Router() {
       <Route path="/shop" component={Shop} />
       <Route path="/product/:id" component={ProductDetails} />
       <Route path="/about" component={About} />
+      <Route path="/reviews" component={Reviews} />
       <Route path="/track" component={TrackOrder} />
       <Route path="/contact" component={Contact} />
       <Route path="/admin" component={AdminDashboard} />

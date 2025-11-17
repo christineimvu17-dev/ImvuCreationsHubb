@@ -46,7 +46,7 @@ import { Lock, Search, Filter, Plus, Edit, Trash2, Check, X, Package, ShoppingCa
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { insertProductSchema } from "@shared/schema";
-import type { InsertProduct, Product, Order, Review } from "@shared/schema";
+import type { InsertProduct, Product, Order, Review, SiteReview, InsertSiteReview } from "@shared/schema";
 import { z } from "zod";
 import {
   Form,
@@ -184,7 +184,7 @@ export default function AdminDashboard() {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-3 bg-black/50 border border-purple-500/30">
+          <TabsList className="grid w-full grid-cols-4 bg-black/50 border border-purple-500/30">
             <TabsTrigger value="orders" data-testid="tab-orders">
               <ShoppingCart className="w-4 h-4 mr-2" />
               Orders
@@ -193,9 +193,13 @@ export default function AdminDashboard() {
               <Package className="w-4 h-4 mr-2" />
               Products
             </TabsTrigger>
-            <TabsTrigger value="reviews" data-testid="tab-reviews">
+            <TabsTrigger value="product-reviews" data-testid="tab-product-reviews">
               <Star className="w-4 h-4 mr-2" />
-              Reviews
+              Product Reviews
+            </TabsTrigger>
+            <TabsTrigger value="site-reviews" data-testid="tab-site-reviews">
+              <Star className="w-4 h-4 mr-2" />
+              Site Reviews
             </TabsTrigger>
           </TabsList>
 
@@ -207,8 +211,12 @@ export default function AdminDashboard() {
             <ProductsTab authToken={authToken} />
           </TabsContent>
 
-          <TabsContent value="reviews">
+          <TabsContent value="product-reviews">
             <ReviewsTab authToken={authToken} />
+          </TabsContent>
+
+          <TabsContent value="site-reviews">
+            <SiteReviewsTab authToken={authToken} />
           </TabsContent>
         </Tabs>
       </div>
@@ -1434,6 +1442,297 @@ function ReviewsTab({ authToken }: { authToken: string }) {
           </div>
         )}
       </CardContent>
+    </Card>
+  );
+}
+
+function SiteReviewsTab({ authToken }: { authToken: string }) {
+  const [showAddDialog, setShowAddDialog] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [selectedReview, setSelectedReview] = useState<SiteReview | null>(null);
+  const { toast } = useToast();
+
+  const { data: siteReviews, isLoading } = useQuery<SiteReview[]>({
+    queryKey: ["/api/site-reviews"],
+  });
+
+  const addReviewForm = useForm({
+    defaultValues: {
+      reviewerName: "",
+      reviewText: "",
+      rating: 5,
+      displayDate: format(new Date(), "yyyy-MM-dd"),
+    },
+  });
+
+  const addReviewMutation = useMutation({
+    mutationFn: async (data: InsertSiteReview) => {
+      const response = await fetch("/api/admin/site-reviews", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+        body: JSON.stringify(data),
+      });
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || "Failed to add review");
+      }
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/site-reviews"] });
+      setShowAddDialog(false);
+      addReviewForm.reset();
+      toast({
+        title: "Review Added",
+        description: "The site review has been added successfully",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error.message,
+      });
+    },
+  });
+
+  const deleteReviewMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const response = await fetch(`/api/admin/site-reviews/${id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+        },
+      });
+      if (!response.ok) {
+        throw new Error("Failed to delete review");
+      }
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/site-reviews"] });
+      setShowDeleteDialog(false);
+      setSelectedReview(null);
+      toast({
+        title: "Review Deleted",
+        description: "The site review has been deleted successfully",
+      });
+    },
+    onError: () => {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to delete review",
+      });
+    },
+  });
+
+  const handleAddReview = (data: any) => {
+    const reviewData = {
+      reviewerName: data.reviewerName,
+      reviewText: data.reviewText,
+      rating: data.rating,
+      displayDate: data.displayDate,
+    };
+    addReviewMutation.mutate(reviewData as InsertSiteReview);
+  };
+
+  const handleDeleteClick = (review: SiteReview) => {
+    setSelectedReview(review);
+    setShowDeleteDialog(true);
+  };
+
+  const getRatingStars = (rating: number) => {
+    return "⭐".repeat(rating);
+  };
+
+  return (
+    <Card className="bg-black/30 border-purple-500/30">
+      <CardHeader>
+        <div className="flex items-center justify-between">
+          <div>
+            <CardTitle className="text-2xl neon-text">Site Reviews Management</CardTitle>
+            <CardDescription className="text-gray-400">
+              Add and manage customer testimonials for the Reviews page
+            </CardDescription>
+          </div>
+          <Button
+            onClick={() => setShowAddDialog(true)}
+            className="bg-gradient-to-r from-purple-500 to-pink-500"
+            data-testid="button-add-site-review"
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            Add Review
+          </Button>
+        </div>
+      </CardHeader>
+      <CardContent>
+        {isLoading ? (
+          <div className="text-center py-12">
+            <p className="text-gray-400">Loading reviews...</p>
+          </div>
+        ) : siteReviews && siteReviews.length > 0 ? (
+          <div className="space-y-4">
+            {siteReviews.map((review) => (
+              <div
+                key={review.id}
+                className="p-4 bg-black/50 rounded-lg border border-purple-500/30"
+                data-testid={`site-review-${review.id}`}
+              >
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="font-medium text-lg" data-testid={`text-reviewer-${review.id}`}>
+                        {review.reviewerName}
+                      </div>
+                      <div className="text-purple-400 text-lg" data-testid={`text-rating-${review.id}`}>
+                        {getRatingStars(review.rating)}
+                      </div>
+                    </div>
+                    <p className="text-gray-300 mb-2" data-testid={`text-review-${review.id}`}>
+                      {review.reviewText}
+                    </p>
+                    <div className="text-sm text-gray-400" data-testid={`text-date-${review.id}`}>
+                      Reviewed on: {format(new Date(review.displayDate), "dd/MM/yyyy")}
+                    </div>
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleDeleteClick(review)}
+                    data-testid={`button-delete-review-${review.id}`}
+                    className="border-red-500/30 text-red-400 hover:bg-red-500/10"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-12">
+            <p className="text-gray-400">No site reviews yet. Add your first review!</p>
+          </div>
+        )}
+      </CardContent>
+
+      <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
+        <DialogContent className="bg-black border-purple-500/30">
+          <DialogHeader>
+            <DialogTitle className="neon-text">Add Site Review</DialogTitle>
+            <DialogDescription className="text-gray-400">
+              Add a customer testimonial to display on the Reviews page
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={addReviewForm.handleSubmit(handleAddReview)} className="space-y-4">
+            <div>
+              <Label htmlFor="reviewerName" className="text-gray-300">
+                Reviewer Name
+              </Label>
+              <Input
+                id="reviewerName"
+                {...addReviewForm.register("reviewerName")}
+                className="bg-black/50 border-purple-500/30 text-white"
+                placeholder="Enter reviewer name"
+                data-testid="input-reviewer-name"
+                required
+              />
+            </div>
+            <div>
+              <Label htmlFor="rating" className="text-gray-300">
+                Rating
+              </Label>
+              <Select
+                value={addReviewForm.watch("rating")?.toString()}
+                onValueChange={(value) => addReviewForm.setValue("rating", parseInt(value))}
+              >
+                <SelectTrigger className="bg-black/50 border-purple-500/30 text-white" data-testid="select-rating">
+                  <SelectValue placeholder="Select rating" />
+                </SelectTrigger>
+                <SelectContent className="bg-black border-purple-500/30">
+                  {[5, 4, 3, 2, 1].map((num) => (
+                    <SelectItem key={num} value={num.toString()}>
+                      {getRatingStars(num)} ({num} stars)
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label htmlFor="reviewText" className="text-gray-300">
+                Review Text
+              </Label>
+              <Textarea
+                id="reviewText"
+                {...addReviewForm.register("reviewText")}
+                className="bg-black/50 border-purple-500/30 text-white min-h-[100px]"
+                placeholder="Enter review text"
+                data-testid="textarea-review-text"
+                required
+              />
+            </div>
+            <div>
+              <Label htmlFor="displayDate" className="text-gray-300">
+                Display Date (as shown on reviews page)
+              </Label>
+              <Input
+                id="displayDate"
+                type="date"
+                {...addReviewForm.register("displayDate")}
+                className="bg-black/50 border-purple-500/30 text-white"
+                data-testid="input-display-date"
+                required
+              />
+            </div>
+            <DialogFooter>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setShowAddDialog(false)}
+                data-testid="button-cancel-add"
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                disabled={addReviewMutation.isPending}
+                className="bg-gradient-to-r from-purple-500 to-pink-500"
+                data-testid="button-submit-review"
+              >
+                {addReviewMutation.isPending ? "Adding..." : "Add Review"}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent className="bg-black border-purple-500/30">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="neon-text">Delete Review</AlertDialogTitle>
+            <AlertDialogDescription className="text-gray-400">
+              Are you sure you want to delete this review from {selectedReview?.reviewerName}?
+              This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="bg-black/50 border-purple-500/30" data-testid="button-cancel-delete">
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => selectedReview && deleteReviewMutation.mutate(selectedReview.id)}
+              disabled={deleteReviewMutation.isPending}
+              className="bg-red-500 hover:bg-red-600"
+              data-testid="button-confirm-delete"
+            >
+              {deleteReviewMutation.isPending ? "Deleting..." : "Delete"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Card>
   );
 }

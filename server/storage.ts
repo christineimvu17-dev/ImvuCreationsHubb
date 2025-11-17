@@ -13,12 +13,15 @@ import {
   type InsertReview,
   type Admin,
   type InsertAdmin,
+  type SiteReview,
+  type InsertSiteReview,
   products as productsTable,
   orders as ordersTable,
   chatMessages as chatMessagesTable,
   contactForms as contactFormsTable,
   reviews as reviewsTable,
   admins as adminsTable,
+  siteReviews as siteReviewsTable,
 } from "@shared/schema";
 import { drizzle } from "drizzle-orm/neon-http";
 import { eq, desc, ilike, sql as sqlOp, avg, count } from "drizzle-orm";
@@ -55,6 +58,10 @@ export interface IStorage {
   
   getAdminByUsername(username: string): Promise<Admin | undefined>;
   createAdmin(admin: InsertAdmin): Promise<Admin>;
+  
+  createSiteReview(review: InsertSiteReview): Promise<SiteReview>;
+  getAllSiteReviews(): Promise<SiteReview[]>;
+  deleteSiteReview(id: string): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -255,6 +262,25 @@ export class DatabaseStorage implements IStorage {
       .values(admin)
       .returning();
     return newAdmin;
+  }
+
+  async createSiteReview(review: InsertSiteReview): Promise<SiteReview> {
+    const [newReview] = await db
+      .insert(siteReviewsTable)
+      .values(review)
+      .returning();
+    return newReview;
+  }
+
+  async getAllSiteReviews(): Promise<SiteReview[]> {
+    return db
+      .select()
+      .from(siteReviewsTable)
+      .orderBy(desc(siteReviewsTable.displayDate));
+  }
+
+  async deleteSiteReview(id: string): Promise<void> {
+    await db.delete(siteReviewsTable).where(eq(siteReviewsTable.id, id));
   }
 }
 
