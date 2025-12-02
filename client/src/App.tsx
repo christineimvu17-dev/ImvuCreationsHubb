@@ -13,6 +13,7 @@ import TrackOrder from "@/pages/TrackOrder";
 import Contact from "@/pages/Contact";
 import AdminDashboard from "@/pages/AdminDashboard";
 import Reviews from "@/pages/Reviews";
+import Policies from "@/pages/Policies";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { CartProvider } from "@/contexts/CartContext";
@@ -27,6 +28,7 @@ function Router() {
       <Route path="/reviews" component={Reviews} />
       <Route path="/track" component={TrackOrder} />
       <Route path="/contact" component={Contact} />
+      <Route path="/policies" component={Policies} />
       <Route path="/admin" component={AdminDashboard} />
       <Route component={NotFound} />
     </Switch>

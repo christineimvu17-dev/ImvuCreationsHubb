@@ -5,7 +5,7 @@ export function Footer() {
   return (
     <footer className="mt-auto w-full border-t border-border/40 bg-card">
       <div className="container mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 mb-6">
           <div>
             <h3 className="text-xl font-bold neon-text mb-4" style={{ fontFamily: 'Orbitron' }}>
               BM CREATIONS
@@ -21,8 +21,20 @@ export function Footer() {
               <a href="/" className="hover:text-primary transition-colors">Home</a>
               <a href="/shop" className="hover:text-primary transition-colors">Shop</a>
               <a href="/about" className="hover:text-primary transition-colors">About Us</a>
+              <a href="/reviews" className="hover:text-primary transition-colors">Reviews</a>
               <a href="/track" className="hover:text-primary transition-colors">Track Order</a>
               <a href="/contact" className="hover:text-primary transition-colors">Contact</a>
+            </div>
+          </div>
+
+          <div>
+            <h4 className="font-semibold mb-4">Help & Policies</h4>
+            <div className="flex flex-col gap-2 text-sm text-muted-foreground">
+              <a href="/policies#faq" className="hover:text-primary transition-colors">FAQ</a>
+              <a href="/policies#refund" className="hover:text-primary transition-colors">Refund Policy</a>
+              <a href="/policies#delivery" className="hover:text-primary transition-colors">Delivery Policy</a>
+              <a href="/policies#privacy" className="hover:text-primary transition-colors">Privacy Policy</a>
+              <a href="/policies#terms" className="hover:text-primary transition-colors">Terms of Service</a>
             </div>
           </div>
 
