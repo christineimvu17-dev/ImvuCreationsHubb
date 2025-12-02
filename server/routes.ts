@@ -607,6 +607,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.get("/api/admin/offers/:id/usages", requireAdmin, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const usages = await storage.getOfferUsages(id);
+      const count = await storage.getOfferUsageCount(id);
+      res.json({ usages, count });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch offer usages" });
+    }
+  });
+
+  app.get("/api/admin/offer-usages", requireAdmin, async (req, res) => {
+    try {
+      const usages = await storage.getOfferUsages();
+      res.json(usages);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch offer usages" });
+    }
+  });
+
   app.post("/api/admin/seed-products", requireAdmin, async (req, res) => {
     try {
       const seedProducts = [

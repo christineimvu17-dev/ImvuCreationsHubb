@@ -17,6 +17,8 @@ import {
   type InsertSiteReview,
   type Offer,
   type InsertOffer,
+  type OfferUsage,
+  type InsertOfferUsage,
   products as productsTable,
   orders as ordersTable,
   chatMessages as chatMessagesTable,
@@ -25,6 +27,7 @@ import {
   admins as adminsTable,
   siteReviews as siteReviewsTable,
   offers as offersTable,
+  offerUsages as offerUsagesTable,
 } from "@shared/schema";
 import { drizzle } from "drizzle-orm/neon-http";
 import { eq, desc, ilike, sql as sqlOp, avg, count } from "drizzle-orm";
@@ -74,6 +77,10 @@ export interface IStorage {
   updateOffer(id: string, offer: Partial<InsertOffer>): Promise<Offer | undefined>;
   deleteOffer(id: string): Promise<void>;
   hasUserOrderedBefore(email: string): Promise<boolean>;
+  
+  createOfferUsage(usage: InsertOfferUsage): Promise<OfferUsage>;
+  getOfferUsages(offerId?: string): Promise<OfferUsage[]>;
+  getOfferUsageCount(offerId: string): Promise<number>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -365,6 +372,36 @@ export class DatabaseStorage implements IStorage {
       .where(ilike(ordersTable.email, email))
       .limit(1);
     return orders.length > 0;
+  }
+
+  async createOfferUsage(usage: InsertOfferUsage): Promise<OfferUsage> {
+    const [newUsage] = await db
+      .insert(offerUsagesTable)
+      .values(usage)
+      .returning();
+    return newUsage;
+  }
+
+  async getOfferUsages(offerId?: string): Promise<OfferUsage[]> {
+    if (offerId) {
+      return db
+        .select()
+        .from(offerUsagesTable)
+        .where(eq(offerUsagesTable.offerId, offerId))
+        .orderBy(desc(offerUsagesTable.usedAt));
+    }
+    return db
+      .select()
+      .from(offerUsagesTable)
+      .orderBy(desc(offerUsagesTable.usedAt));
+  }
+
+  async getOfferUsageCount(offerId: string): Promise<number> {
+    const result = await db
+      .select({ count: sqlOp<number>`count(*)` })
+      .from(offerUsagesTable)
+      .where(eq(offerUsagesTable.offerId, offerId));
+    return Number(result[0]?.count) || 0;
   }
 }
 

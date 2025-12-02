@@ -14,6 +14,9 @@ import Contact from "@/pages/Contact";
 import AdminDashboard from "@/pages/AdminDashboard";
 import Reviews from "@/pages/Reviews";
 import Policies from "@/pages/Policies";
+import CheapImvuCredits from "@/pages/seo/CheapImvuCredits";
+import ImvuRoomsSale from "@/pages/seo/ImvuRoomsSale";
+import ImvuTriggerDeals from "@/pages/seo/ImvuTriggerDeals";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { CartProvider } from "@/contexts/CartContext";
@@ -27,9 +30,13 @@ function Router() {
       <Route path="/about" component={About} />
       <Route path="/reviews" component={Reviews} />
       <Route path="/track" component={TrackOrder} />
+      <Route path="/track-order" component={TrackOrder} />
       <Route path="/contact" component={Contact} />
       <Route path="/policies" component={Policies} />
       <Route path="/admin" component={AdminDashboard} />
+      <Route path="/cheap-imvu-credits" component={CheapImvuCredits} />
+      <Route path="/imvu-rooms-sale" component={ImvuRoomsSale} />
+      <Route path="/imvu-trigger-deals" component={ImvuTriggerDeals} />
       <Route component={NotFound} />
     </Switch>
   );

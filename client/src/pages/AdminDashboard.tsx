@@ -42,11 +42,11 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
-import { Lock, Search, Filter, Plus, Edit, Trash2, Check, X, Package, ShoppingCart, Star, CheckCircle, Clock, Gift } from "lucide-react";
+import { Lock, Search, Filter, Plus, Edit, Trash2, Check, X, Package, ShoppingCart, Star, CheckCircle, Clock, Gift, Users, Eye } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { insertProductSchema } from "@shared/schema";
-import type { InsertProduct, Product, Order, Review, SiteReview, InsertSiteReview, Offer, InsertOffer } from "@shared/schema";
+import type { InsertProduct, Product, Order, Review, SiteReview, InsertSiteReview, Offer, InsertOffer, OfferUsage } from "@shared/schema";
 import { z } from "zod";
 import {
   Form,
@@ -1814,6 +1814,7 @@ function OffersTab({ authToken }: { authToken: string }) {
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [showUsagesDialog, setShowUsagesDialog] = useState(false);
   const [selectedOffer, setSelectedOffer] = useState<Offer | null>(null);
   const { toast } = useToast();
 
@@ -1825,6 +1826,18 @@ function OffersTab({ authToken }: { authToken: string }) {
         headers: { Authorization: `Bearer ${authToken}` },
       });
       if (!response.ok) throw new Error("Failed to fetch offers");
+      return response.json();
+    },
+  });
+
+  const { data: offerUsagesData, isLoading: isLoadingUsages } = useQuery<{ usages: OfferUsage[], count: number }>({
+    queryKey: ["/api/admin/offers", selectedOffer?.id, "usages"],
+    enabled: !!authToken && !!selectedOffer && showUsagesDialog,
+    queryFn: async () => {
+      const response = await fetch(`/api/admin/offers/${selectedOffer?.id}/usages`, {
+        headers: { Authorization: `Bearer ${authToken}` },
+      });
+      if (!response.ok) throw new Error("Failed to fetch offer usages");
       return response.json();
     },
   });
@@ -1964,6 +1977,11 @@ function OffersTab({ authToken }: { authToken: string }) {
     setShowDeleteDialog(true);
   };
 
+  const handleViewUsages = (offer: Offer) => {
+    setSelectedOffer(offer);
+    setShowUsagesDialog(true);
+  };
+
   if (isLoading) {
     return (
       <Card className="bg-black/50 border-purple-500/30">
@@ -2041,6 +2059,15 @@ function OffersTab({ authToken }: { authToken: string }) {
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleViewUsages(offer)}
+                        className="border-blue-500/30 text-blue-400 hover:bg-blue-500/10"
+                        data-testid={`button-view-usages-${offer.id}`}
+                      >
+                        <Users className="w-4 h-4" />
+                      </Button>
                       <Button
                         variant="outline"
                         size="sm"
@@ -2300,6 +2327,72 @@ function OffersTab({ authToken }: { authToken: string }) {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <Dialog open={showUsagesDialog} onOpenChange={setShowUsagesDialog}>
+        <DialogContent className="bg-black border-purple-500/30 max-w-2xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="neon-text flex items-center gap-2">
+              <Users className="w-5 h-5" />
+              Offer Usage Stats
+            </DialogTitle>
+            <DialogDescription className="text-gray-400">
+              Customers who used "{selectedOffer?.title}"
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between p-4 bg-purple-500/10 rounded-lg border border-purple-500/30">
+              <span className="text-gray-300">Total Uses</span>
+              <span className="text-2xl font-bold neon-text">
+                {offerUsagesData?.count || 0}
+              </span>
+            </div>
+            
+            {isLoadingUsages ? (
+              <div className="flex items-center justify-center py-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500" />
+              </div>
+            ) : offerUsagesData?.usages && offerUsagesData.usages.length > 0 ? (
+              <Table>
+                <TableHeader>
+                  <TableRow className="border-purple-500/30">
+                    <TableHead className="text-gray-300">Email</TableHead>
+                    <TableHead className="text-gray-300">IMVU ID</TableHead>
+                    <TableHead className="text-gray-300">Order ID</TableHead>
+                    <TableHead className="text-gray-300">Used At</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {offerUsagesData.usages.map((usage) => (
+                    <TableRow key={usage.id} className="border-purple-500/30">
+                      <TableCell className="text-white">{usage.email}</TableCell>
+                      <TableCell className="text-gray-400">{usage.imvuId || "-"}</TableCell>
+                      <TableCell className="text-gray-400 font-mono text-sm">{usage.orderId || "-"}</TableCell>
+                      <TableCell className="text-gray-400">
+                        {format(new Date(usage.usedAt), "MMM dd, yyyy HH:mm")}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            ) : (
+              <div className="text-center py-8">
+                <Users className="w-12 h-12 text-gray-500 mx-auto mb-4" />
+                <p className="text-gray-400">No usage recorded yet</p>
+                <p className="text-gray-500 text-sm">Customers who use this offer will appear here</p>
+              </div>
+            )}
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setShowUsagesDialog(false)}
+              data-testid="button-close-usages"
+            >
+              Close
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Card>
   );
 }

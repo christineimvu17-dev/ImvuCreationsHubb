@@ -205,3 +205,20 @@ export const insertOfferSchema = createInsertSchema(offers).omit({
 
 export type InsertOffer = z.infer<typeof insertOfferSchema>;
 export type Offer = typeof offers.$inferSelect;
+
+export const offerUsages = pgTable("offer_usages", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  offerId: varchar("offer_id").notNull(),
+  orderId: varchar("order_id").notNull(),
+  email: text("email").notNull(),
+  imvuId: text("imvu_id").notNull(),
+  usedAt: timestamp("used_at").notNull().default(sql`now()`),
+});
+
+export const insertOfferUsageSchema = createInsertSchema(offerUsages).omit({
+  id: true,
+  usedAt: true,
+});
+
+export type InsertOfferUsage = z.infer<typeof insertOfferUsageSchema>;
+export type OfferUsage = typeof offerUsages.$inferSelect;

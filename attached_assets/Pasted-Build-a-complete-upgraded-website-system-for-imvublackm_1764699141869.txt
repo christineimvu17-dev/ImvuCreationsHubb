@@ -1,0 +1,124 @@
+Build a complete upgraded website system for imvublackmarket.xyz. Include everything below with full code (HTML, CSS, JS, PHP, JSON, MySQL) and installation steps. Do not skip or shorten anything.
+
+SECTION 1: HOMEPAGE LAYOUT FIX
+
+1. Remove the entire "Why choose BM Creations for IMVU products" section.
+
+
+2. Remove the entire "How it works" section.
+
+
+3. Rearrange homepage sections in this exact order:
+a) Show "Why Choose Us?" section first (modern icons, dark neon UI, responsive).
+b) After that show "Accepted Payment Methods" section (PayPal, CashApp, Binance, Wise, Gift Cards, UPI).
+c) After that show "Buy IMVU Triggers & Rooms – Instant Delivery" section.
+
+
+4. Ensure layout looks perfect on PC, tablet, and mobile.
+
+
+
+SECTION 2: ABOUT PAGE FIX
+
+1. Remove the entire existing About content.
+
+
+2. Replace it with Help & Policies sections: FAQ, Refund Policy, Delivery Policy, Privacy Policy, Terms of Service.
+
+
+3. Use clean tabs or accordion layout.
+
+
+
+SECTION 3: TRACK ORDER PAGE
+
+1. Improve the Track Order page with examples showing how tracking works.
+
+
+2. Add sample order IDs, sample statuses (Processing, Completed, Delivered), and instructions on how to enter IMVU ID or Order ID.
+
+
+3. Make design clean and responsive.
+
+
+
+SECTION 4: HOME PAGE OFFER SYSTEM
+Create a complete dynamic offer banner system. Banner must include Offer Title, Offer Description, Claim Offer button, Close button, fade-in animation, dark neon style, responsive design.
+Default offer: "First-Time Buyers Get a FREE ROOM!"
+Banner must load offer data dynamically from JSON or MySQL.
+
+SECTION 5: ADMIN OFFER PANEL
+Create a full admin panel to manage offers. Admin must be able to:
+
+Edit offer title
+
+Edit offer description
+
+Enable/disable offer
+
+Toggle: Free Room For First Order (Yes/No)
+
+Set expiry date
+
+Save offer to JSON or MySQL
+
+View total offer usage
+
+View customer list who used the offer
+Include authentication and input validation.
+
+
+SECTION 6: FIRST-TIME BUYER LOGIC
+Add backend logic so the offer applies only for first-time buyers. Check user email or IMVU ID.
+If no previous order: apply free room.
+If user has orders: do not apply.
+After purchase: mark offer_used = 1.
+Provide full PHP checkout code.
+
+SECTION 7: EXTRA WEBSITE FEATURES (Include All)
+
+1. Best Seller Section with badges and auto-populated top products.
+
+
+2. Countdown Timer for offers based on expiry date.
+
+
+3. Testimonials/Reviews slider (rating, text, verified purchase).
+
+
+4. Order Tracking System (user enters order ID, system shows status). Admin can update status.
+
+
+5. Step-by-step "How to Buy" section (4 steps with icons).
+
+
+6. High-quality product cards with images, badges, price, description.
+
+
+7. SEO landing pages: Cheap IMVU Credits, IMVU Rooms Sale, IMVU Trigger Packs Deals.
+
+
+8. Full dark-mode neon gaming UI.
+
+
+
+SECTION 8: FILE STRUCTURE
+Provide a full directory structure example, including all files such as:
+/admin/ , /api/ , /css/ , /js/ , /images/ , offer.json , get_offer.php , admin_offer.php , admin_update_offer.php , checkout.php , track-order.php , about.php , best_sellers.php , seo_page1.php , seo_page2.php , seo_page3.php , etc.
+
+SECTION 9: INSTALLATION GUIDE
+Provide complete installation steps for shared hosting/cPanel, file uploads, JSON file permissions, MySQL setup, admin panel security, and testing offer system and order tracking.
+
+RULES
+
+Include all features exactly as listed
+
+Do not skip backend logic
+
+Do not skip admin panel
+
+Do not shorten code
+
+Provide full HTML, CSS, JS, PHP
+
+Assume the most complete version if unclear
