@@ -40,9 +40,12 @@ Preferred communication style: Simple, everyday language.
 - `/api/chat` - Live chat message handling
 - `/api/reviews/:productId` - Get approved reviews for a product
 - `/api/reviews` - Submit a new review (requires approval)
+- `/api/offer` - Get active promotional offer for homepage banner
+- `/api/check-first-order` - Check if email has previous orders (for first-time buyer offers)
 - `/api/admin/login` - Admin authentication
 - `/api/admin/products` - Product CRUD operations (requires admin auth)
 - `/api/admin/reviews` - Review moderation (requires admin auth)
+- `/api/admin/offers` - Promotional offers CRUD (requires admin auth)
 
 **Request Processing**: 
 - JSON body parsing with raw buffer capture for webhook verification
@@ -64,6 +67,7 @@ Preferred communication style: Simple, everyday language.
   * Platform support: pcSupport, mobileSupport
 - `orders` table: Order records with IMVU ID, email, payment details, transaction tracking, and status
 - `reviews` table: Customer product reviews with rating, text, and approval status
+- `offers` table: Promotional offers with title, description, enabled status, expiry date, and first-order-only flag
 - `chatMessages` table: Customer support chat messages
 - `contactForms` table: Contact form submissions
 
@@ -168,3 +172,26 @@ Preferred communication style: Simple, everyday language.
 - Security assurance banner emphasizing bank-level encryption and automatic credential deletion
 - Added to both Home page and About page for maximum visibility
 - Builds customer trust by transparently explaining the delivery and security process
+
+**Promotional Offers System**: Dynamic offer banner for marketing campaigns:
+- OfferBanner component (`client/src/components/OfferBanner.tsx`) displays at top of homepage
+- Features animated countdown timer for time-limited offers with expiry dates
+- localStorage dismissal tracking with per-offer ID storage to respect user preferences
+- "First Order Only" badge for offers restricted to first-time buyers
+- Admin can manage offers via the Offers tab in the Admin Dashboard (CRUD operations)
+- First-time buyer detection via `/api/check-first-order` endpoint checks order history by email
+
+**Policies Page**: Comprehensive Help & Policies page (`client/src/pages/Policies.tsx`):
+- Route: `/policies` with hash navigation support (#faq, #refund, #delivery, #privacy, #terms)
+- Uses tabs for organized content presentation
+- FAQ section with expandable accordion for common questions
+- Refund Policy with clear eligibility and non-eligibility sections
+- Delivery Policy explaining delivery times and process
+- Privacy Policy detailing data collection and security measures
+- Terms of Service covering account requirements, purchases, and disclaimers
+- Contact button linking to Contact page for additional support
+- Footer updated to include policy links in "Help & Policies" column
+
+**Homepage Marketing Sections**:
+- "Why Choose Us" section with 6 feature cards showcasing benefits
+- "Payment Methods" section displaying accepted payment provider logos
