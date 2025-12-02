@@ -1,0 +1,425 @@
+Build a complete, professional, fully-responsive website system for imvublackmarket.xyz.
+This includes the Home Page Offer Banner System + Admin Offer Panel + First-Time Buyer Logic + Additional Ecommerce Features.
+
+Everything MUST be included in clean code with full files, full CSS, full JS, and installation steps.
+Do not shorten anything.
+
+
+---
+
+🔥 1. HOME PAGE OFFER SECTION (Dynamic)
+
+Create a stylish, modern, animated offer banner that loads dynamically from JSON or database.
+
+Default offer example:
+“First-time buyers get a ROOM for FREE!”
+
+Banner must include:
+
+Title
+
+Description
+
+“Claim Offer” button
+
+“Close ×” button
+
+Smooth entrance animation
+
+Mobile responsive layout
+
+Dark-mode friendly styles
+
+LocalStorage dismissal system
+
+
+
+---
+
+🔥 2. ADMIN PANEL – EDIT OFFER
+
+Build a secure admin panel where I can edit:
+
+Offer Title
+
+Offer Description
+
+Enable / Disable Offer
+
+Toggle: “Free Room on First Order (YES/NO)”
+
+Offer Expiry Date
+
+Save button
+
+JSON or database storage
+
+
+Admin panel must save offer to:
+offer.json or MySQL table (either works).
+
+Include:
+
+Input validation
+
+CSRF protection
+
+Admin authentication instructions
+
+
+
+---
+
+🔥 3. OFFER STORAGE (JSON or MySQL)
+
+Backend must load the latest offer and only show it if:
+
+enabled = 1
+
+expiry is not passed
+
+
+Provide full backend code:
+
+PHP version
+
+JSON version (if chosen)
+
+
+
+---
+
+🔥 4. FIRST-TIME BUYER BACKEND LOGIC
+
+Add backend logic for checkout:
+
+Offer applies only if user has never ordered before.
+
+Check via email or user ID.
+
+If first-time → apply free room.
+
+After purchase, mark “offer_used = 1” so they can’t use again.
+
+Must provide PHP code for this logic.
+
+
+
+---
+
+🔥 5. OFFER USAGE TRACKER
+
+Add system to track:
+
+How many customers used the offer
+
+Their emails/usernames
+
+Date/time
+
+Order ID
+
+Whether they got free room
+
+
+Store in MySQL or JSON.
+
+
+---
+
+🔥 6. BEST-SELLER / POPULAR PRODUCTS SECTION
+
+On homepage, add:
+
+“🔥 Best Seller” product strip
+
+Auto-highlight top-selling items
+
+Product card design (image + price + short description)
+
+
+
+---
+
+🔥 7. COUNTDOWN TIMER FOR OFFERS
+
+If admin sets an expiry date, show:
+
+⏳ Offer ends in: HH:MM:SS
+
+Include JavaScript countdown timer.
+
+
+---
+
+🔥 8. CUSTOMER TESTIMONIALS / REVIEWS SECTION
+
+Add a dynamic reviews section:
+
+Star rating
+
+Review text
+
+“Verified Purchase” badge
+
+Optional screenshot/image attachment
+
+Slider/carousel UI
+
+
+Include ready-made HTML + JS + CSS for this.
+
+
+---
+
+🔥 9. ORDER TRACKING SYSTEM
+
+Create a simple order tracker:
+
+User enters order ID
+
+System shows:
+
+Processing
+
+Completed
+
+Delivered
+
+Estimated time
+
+
+Admin side can update status
+
+
+Include backend + frontend UI.
+
+
+---
+
+🔥 10. WHY CHOOSE US? SECTION
+
+Add a premium-looking block with icons:
+
+⚡ Fast Delivery
+
+🔒 Secure Payment
+
+⭐ Trusted Seller
+
+🛡 Delivery Guarantee
+
+💯 Satisfaction Guarantee
+
+
+Add clean icons + modern animation.
+
+
+---
+
+🔥 11. STEP-BY-STEP “HOW TO BUY” SECTION
+
+Add a 4-step illustrated guide:
+
+1. Choose Product
+
+
+2. Enter IMVU Username
+
+
+3. Make Payment
+
+
+4. Receive Order
+
+
+
+Include icons & animations.
+
+
+---
+
+🔥 12. PAYMENT METHODS DISPLAY
+
+Add a section showing logos for:
+
+PayPal
+
+UPI
+
+GPay
+
+Paytm
+
+Visa
+
+Mastercard
+
+
+Improve trust & conversion.
+
+
+---
+
+🔥 13. PRODUCT PAGE ENHANCEMENTS
+
+Each product must have:
+
+High-quality image
+
+Description
+
+Delivery time
+
+Price
+
+“Buy Now” CTA
+
+Stock / availability badge
+
+“Popular” badge for best-sellers
+
+
+
+---
+
+🔥 14. FAQ PAGE + POLICY PAGES
+
+Generate full pages:
+
+FAQ
+
+Refund Policy
+
+Delivery Policy
+
+Privacy Policy
+
+Terms & Conditions
+
+
+All fully written out and SEO optimized.
+
+
+---
+
+🔥 15. SEO OPTIMIZATION
+
+Add SEO-friendly:
+
+Meta tags
+
+Title tags
+
+ALT tags
+
+Schema
+
+SEO URLs
+
+Keywords like:
+
+Buy IMVU Credits
+
+IMVU Black Market
+
+IMVU Rooms Sale
+
+IMVU Trigger Packs
+
+
+
+Also create 3 SEO landing pages:
+
+1. Cheap IMVU Credits
+
+
+2. Best IMVU Rooms
+
+
+3. IMVU Black Market Deals
+
+
+
+
+---
+
+🔥 16. DARK-MODE PREMIUM GAME UI
+
+Design must include:
+
+Dark theme
+
+Neon/glow accents
+
+Purple/blue IMVU-style colors
+
+Smooth shadows and gradients
+
+Hover animations
+
+Mobile adaptive UI
+
+
+
+---
+
+🔥 17. FULL FILE STRUCTURE
+
+Provide complete structure like:
+
+/admin/
+/css/
+/js/
+/api/
+/images/
+/offer.json
+/get_offer.php
+/admin_offer.php
+/admin_update_offer.php
+/order_tracking.php
+/products.php
+/index.php
+
+
+---
+
+🔥 18. INSTALLATION INSTRUCTIONS
+
+Give FULL setup steps for:
+
+Shared hosting / cPanel
+
+File upload
+
+Setting permissions for offer.json
+
+Connecting MySQL
+
+Securing admin panel
+
+Testing first-time offer
+
+Testing order tracking system
+
+
+
+---
+
+IMPORTANT RULES FOR OUTPUT
+
+Include ALL CSS, JS, PHP, HTML completely.
+
+Do NOT shorten the code.
+
+Give EVERYTHING fully ready to upload.
+
+Create clean, modern UI design.
+
+Include animations.
+
+Include dark mode.
+
+Include mobile design.
+
+Include comments in code.

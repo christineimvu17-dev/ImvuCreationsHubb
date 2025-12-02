@@ -15,6 +15,8 @@ import {
   type InsertAdmin,
   type SiteReview,
   type InsertSiteReview,
+  type Offer,
+  type InsertOffer,
   products as productsTable,
   orders as ordersTable,
   chatMessages as chatMessagesTable,
@@ -22,6 +24,7 @@ import {
   reviews as reviewsTable,
   admins as adminsTable,
   siteReviews as siteReviewsTable,
+  offers as offersTable,
 } from "@shared/schema";
 import { drizzle } from "drizzle-orm/neon-http";
 import { eq, desc, ilike, sql as sqlOp, avg, count } from "drizzle-orm";
@@ -64,6 +67,13 @@ export interface IStorage {
   getApprovedSiteReviews(): Promise<SiteReview[]>;
   approveSiteReview(id: string): Promise<SiteReview | undefined>;
   deleteSiteReview(id: string): Promise<void>;
+  
+  getActiveOffer(): Promise<Offer | undefined>;
+  getAllOffers(): Promise<Offer[]>;
+  createOffer(offer: InsertOffer): Promise<Offer>;
+  updateOffer(id: string, offer: Partial<InsertOffer>): Promise<Offer | undefined>;
+  deleteOffer(id: string): Promise<void>;
+  hasUserOrderedBefore(email: string): Promise<boolean>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -303,6 +313,58 @@ export class DatabaseStorage implements IStorage {
 
   async deleteSiteReview(id: string): Promise<void> {
     await db.delete(siteReviewsTable).where(eq(siteReviewsTable.id, id));
+  }
+
+  async getActiveOffer(): Promise<Offer | undefined> {
+    const now = new Date();
+    const [offer] = await db
+      .select()
+      .from(offersTable)
+      .where(eq(offersTable.enabled, true))
+      .orderBy(desc(offersTable.createdAt))
+      .limit(1);
+    
+    if (offer && offer.expiryDate && new Date(offer.expiryDate) < now) {
+      return undefined;
+    }
+    return offer;
+  }
+
+  async getAllOffers(): Promise<Offer[]> {
+    return db
+      .select()
+      .from(offersTable)
+      .orderBy(desc(offersTable.createdAt));
+  }
+
+  async createOffer(offer: InsertOffer): Promise<Offer> {
+    const [newOffer] = await db
+      .insert(offersTable)
+      .values(offer)
+      .returning();
+    return newOffer;
+  }
+
+  async updateOffer(id: string, offer: Partial<InsertOffer>): Promise<Offer | undefined> {
+    const [updatedOffer] = await db
+      .update(offersTable)
+      .set({ ...offer, updatedAt: new Date() })
+      .where(eq(offersTable.id, id))
+      .returning();
+    return updatedOffer;
+  }
+
+  async deleteOffer(id: string): Promise<void> {
+    await db.delete(offersTable).where(eq(offersTable.id, id));
+  }
+
+  async hasUserOrderedBefore(email: string): Promise<boolean> {
+    const orders = await db
+      .select()
+      .from(ordersTable)
+      .where(ilike(ordersTable.email, email))
+      .limit(1);
+    return orders.length > 0;
   }
 }
 

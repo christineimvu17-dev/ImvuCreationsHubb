@@ -4,7 +4,7 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import multer from "multer";
 import { randomBytes } from "crypto";
-import { insertOrderSchema, insertChatMessageSchema, insertContactFormSchema, insertReviewSchema, insertProductSchema, insertSiteReviewSchema } from "@shared/schema";
+import { insertOrderSchema, insertChatMessageSchema, insertContactFormSchema, insertReviewSchema, insertProductSchema, insertSiteReviewSchema, insertOfferSchema } from "@shared/schema";
 import { fromZodError } from "zod-validation-error";
 import path from "path";
 import fs from "fs";
@@ -530,6 +530,80 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error: any) {
       console.error("File upload error:", error);
       res.status(500).json({ error: error.message || "Failed to upload file" });
+    }
+  });
+
+  // Offer routes
+  app.get("/api/offer", async (req, res) => {
+    try {
+      const offer = await storage.getActiveOffer();
+      res.json(offer || null);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch offer" });
+    }
+  });
+
+  app.get("/api/check-first-order", async (req, res) => {
+    try {
+      const email = req.query.email as string;
+      if (!email) {
+        return res.status(400).json({ error: "Email is required" });
+      }
+      const hasOrdered = await storage.hasUserOrderedBefore(email);
+      res.json({ isFirstOrder: !hasOrdered });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to check order history" });
+    }
+  });
+
+  app.get("/api/admin/offers", requireAdmin, async (req, res) => {
+    try {
+      const offers = await storage.getAllOffers();
+      res.json(offers);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch offers" });
+    }
+  });
+
+  app.post("/api/admin/offers", requireAdmin, async (req, res) => {
+    try {
+      const validatedData = insertOfferSchema.parse(req.body);
+      const offer = await storage.createOffer(validatedData);
+      res.json({ success: true, offer });
+    } catch (error: any) {
+      if (error.name === "ZodError") {
+        const validationError = fromZodError(error);
+        return res.status(400).json({ error: validationError.message });
+      }
+      res.status(500).json({ error: "Failed to create offer" });
+    }
+  });
+
+  app.patch("/api/admin/offers/:id", requireAdmin, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const validatedData = insertOfferSchema.partial().parse(req.body);
+      const offer = await storage.updateOffer(id, validatedData);
+      if (!offer) {
+        return res.status(404).json({ error: "Offer not found" });
+      }
+      res.json({ success: true, offer });
+    } catch (error: any) {
+      if (error.name === "ZodError") {
+        const validationError = fromZodError(error);
+        return res.status(400).json({ error: validationError.message });
+      }
+      res.status(500).json({ error: "Failed to update offer" });
+    }
+  });
+
+  app.delete("/api/admin/offers/:id", requireAdmin, async (req, res) => {
+    try {
+      const { id } = req.params;
+      await storage.deleteOffer(id);
+      res.json({ success: true });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to delete offer" });
     }
   });
 

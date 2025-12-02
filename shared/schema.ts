@@ -183,3 +183,25 @@ export const insertPublicSiteReviewSchema = createInsertSchema(siteReviews).omit
 export type InsertSiteReview = z.infer<typeof insertSiteReviewSchema>;
 export type InsertPublicSiteReview = z.infer<typeof insertPublicSiteReviewSchema>;
 export type SiteReview = typeof siteReviews.$inferSelect;
+
+export const offers = pgTable("offers", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  enabled: boolean("enabled").notNull().default(true),
+  freeRoomFirstOrder: boolean("free_room_first_order").notNull().default(false),
+  expiryDate: timestamp("expiry_date"),
+  createdAt: timestamp("created_at").notNull().default(sql`now()`),
+  updatedAt: timestamp("updated_at").notNull().default(sql`now()`),
+});
+
+export const insertOfferSchema = createInsertSchema(offers).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+}).extend({
+  expiryDate: z.union([z.string(), z.date(), z.null()]).optional().transform((val) => val ? new Date(val) : null),
+});
+
+export type InsertOffer = z.infer<typeof insertOfferSchema>;
+export type Offer = typeof offers.$inferSelect;
