@@ -42,11 +42,11 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
-import { Lock, Search, Filter, Plus, Edit, Trash2, Check, X, Package, ShoppingCart, Star, CheckCircle, Clock } from "lucide-react";
+import { Lock, Search, Filter, Plus, Edit, Trash2, Check, X, Package, ShoppingCart, Star, CheckCircle, Clock, Gift } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { insertProductSchema } from "@shared/schema";
-import type { InsertProduct, Product, Order, Review, SiteReview, InsertSiteReview } from "@shared/schema";
+import type { InsertProduct, Product, Order, Review, SiteReview, InsertSiteReview, Offer, InsertOffer } from "@shared/schema";
 import { z } from "zod";
 import {
   Form,
@@ -184,7 +184,7 @@ export default function AdminDashboard() {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-4 bg-black/50 border border-purple-500/30">
+          <TabsList className="grid w-full grid-cols-5 bg-black/50 border border-purple-500/30">
             <TabsTrigger value="orders" data-testid="tab-orders">
               <ShoppingCart className="w-4 h-4 mr-2" />
               Orders
@@ -200,6 +200,10 @@ export default function AdminDashboard() {
             <TabsTrigger value="site-reviews" data-testid="tab-site-reviews">
               <Star className="w-4 h-4 mr-2" />
               Site Reviews
+            </TabsTrigger>
+            <TabsTrigger value="offers" data-testid="tab-offers">
+              <Gift className="w-4 h-4 mr-2" />
+              Offers
             </TabsTrigger>
           </TabsList>
 
@@ -217,6 +221,10 @@ export default function AdminDashboard() {
 
           <TabsContent value="site-reviews">
             <SiteReviewsTab authToken={authToken} />
+          </TabsContent>
+
+          <TabsContent value="offers">
+            <OffersTab authToken={authToken} />
           </TabsContent>
         </Tabs>
       </div>
@@ -1794,6 +1802,500 @@ function SiteReviewsTab({ authToken }: { authToken: string }) {
               data-testid="button-confirm-delete"
             >
               {deleteReviewMutation.isPending ? "Deleting..." : "Delete"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </Card>
+  );
+}
+
+function OffersTab({ authToken }: { authToken: string }) {
+  const [showAddDialog, setShowAddDialog] = useState(false);
+  const [showEditDialog, setShowEditDialog] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [selectedOffer, setSelectedOffer] = useState<Offer | null>(null);
+  const { toast } = useToast();
+
+  const { data: offers, isLoading } = useQuery<Offer[]>({
+    queryKey: ["/api/admin/offers"],
+    enabled: !!authToken,
+    queryFn: async () => {
+      const response = await fetch("/api/admin/offers", {
+        headers: { Authorization: `Bearer ${authToken}` },
+      });
+      if (!response.ok) throw new Error("Failed to fetch offers");
+      return response.json();
+    },
+  });
+
+  const addOfferForm = useForm({
+    defaultValues: {
+      title: "",
+      description: "",
+      enabled: true,
+      freeRoomFirstOrder: false,
+      expiryDate: "",
+    },
+  });
+
+  const editOfferForm = useForm({
+    defaultValues: {
+      title: "",
+      description: "",
+      enabled: true,
+      freeRoomFirstOrder: false,
+      expiryDate: "",
+    },
+  });
+
+  const addOfferMutation = useMutation({
+    mutationFn: async (data: any) => {
+      const response = await fetch("/api/admin/offers", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+        body: JSON.stringify({
+          ...data,
+          expiryDate: data.expiryDate ? new Date(data.expiryDate).toISOString() : null,
+        }),
+      });
+      if (!response.ok) throw new Error("Failed to create offer");
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/offers"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/offer"] });
+      setShowAddDialog(false);
+      addOfferForm.reset();
+      toast({
+        title: "Offer Created",
+        description: "The offer has been created successfully",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error.message,
+      });
+    },
+  });
+
+  const editOfferMutation = useMutation({
+    mutationFn: async (data: any) => {
+      const response = await fetch(`/api/admin/offers/${selectedOffer?.id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+        body: JSON.stringify({
+          ...data,
+          expiryDate: data.expiryDate ? new Date(data.expiryDate).toISOString() : null,
+        }),
+      });
+      if (!response.ok) throw new Error("Failed to update offer");
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/offers"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/offer"] });
+      setShowEditDialog(false);
+      setSelectedOffer(null);
+      toast({
+        title: "Offer Updated",
+        description: "The offer has been updated successfully",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error.message,
+      });
+    },
+  });
+
+  const deleteOfferMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const response = await fetch(`/api/admin/offers/${id}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${authToken}` },
+      });
+      if (!response.ok) throw new Error("Failed to delete offer");
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/offers"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/offer"] });
+      setShowDeleteDialog(false);
+      setSelectedOffer(null);
+      toast({
+        title: "Offer Deleted",
+        description: "The offer has been deleted successfully",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error.message,
+      });
+    },
+  });
+
+  const handleEditClick = (offer: Offer) => {
+    setSelectedOffer(offer);
+    editOfferForm.reset({
+      title: offer.title,
+      description: offer.description,
+      enabled: offer.enabled,
+      freeRoomFirstOrder: offer.freeRoomFirstOrder,
+      expiryDate: offer.expiryDate ? format(new Date(offer.expiryDate), "yyyy-MM-dd'T'HH:mm") : "",
+    });
+    setShowEditDialog(true);
+  };
+
+  const handleDeleteClick = (offer: Offer) => {
+    setSelectedOffer(offer);
+    setShowDeleteDialog(true);
+  };
+
+  if (isLoading) {
+    return (
+      <Card className="bg-black/50 border-purple-500/30">
+        <CardContent className="p-6">
+          <div className="flex items-center justify-center py-8">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500" />
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <Card className="bg-black/50 border-purple-500/30">
+      <CardHeader>
+        <div className="flex items-center justify-between">
+          <div>
+            <CardTitle className="neon-text">Promotional Offers</CardTitle>
+            <CardDescription className="text-gray-400">
+              Manage promotional banners and special offers
+            </CardDescription>
+          </div>
+          <Button
+            onClick={() => setShowAddDialog(true)}
+            className="bg-gradient-to-r from-purple-500 to-pink-500 gap-2"
+            data-testid="button-add-offer"
+          >
+            <Plus className="w-4 h-4" />
+            Add Offer
+          </Button>
+        </div>
+      </CardHeader>
+      <CardContent>
+        {offers && offers.length > 0 ? (
+          <Table>
+            <TableHeader>
+              <TableRow className="border-purple-500/30">
+                <TableHead className="text-gray-300">Title</TableHead>
+                <TableHead className="text-gray-300">Description</TableHead>
+                <TableHead className="text-gray-300">Status</TableHead>
+                <TableHead className="text-gray-300">First Order</TableHead>
+                <TableHead className="text-gray-300">Expiry</TableHead>
+                <TableHead className="text-gray-300 text-right">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {offers.map((offer) => (
+                <TableRow key={offer.id} className="border-purple-500/30">
+                  <TableCell className="text-white font-medium">{offer.title}</TableCell>
+                  <TableCell className="text-gray-400 max-w-[200px] truncate">
+                    {offer.description}
+                  </TableCell>
+                  <TableCell>
+                    <span
+                      className={`px-2 py-1 rounded-full text-xs font-medium ${
+                        offer.enabled
+                          ? "bg-green-500/20 text-green-400 border border-green-500/30"
+                          : "bg-red-500/20 text-red-400 border border-red-500/30"
+                      }`}
+                    >
+                      {offer.enabled ? "Active" : "Disabled"}
+                    </span>
+                  </TableCell>
+                  <TableCell>
+                    {offer.freeRoomFirstOrder ? (
+                      <Check className="w-4 h-4 text-green-400" />
+                    ) : (
+                      <X className="w-4 h-4 text-gray-500" />
+                    )}
+                  </TableCell>
+                  <TableCell className="text-gray-400">
+                    {offer.expiryDate
+                      ? format(new Date(offer.expiryDate), "MMM dd, yyyy HH:mm")
+                      : "No expiry"}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <div className="flex justify-end gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleEditClick(offer)}
+                        className="border-purple-500/30"
+                        data-testid={`button-edit-offer-${offer.id}`}
+                      >
+                        <Edit className="w-4 h-4" />
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleDeleteClick(offer)}
+                        className="border-red-500/30 text-red-400 hover:bg-red-500/10"
+                        data-testid={`button-delete-offer-${offer.id}`}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        ) : (
+          <div className="text-center py-8">
+            <Gift className="w-12 h-12 text-gray-500 mx-auto mb-4" />
+            <p className="text-gray-400">No offers yet</p>
+            <p className="text-gray-500 text-sm">Create your first promotional offer</p>
+          </div>
+        )}
+      </CardContent>
+
+      <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
+        <DialogContent className="bg-black border-purple-500/30 max-w-md">
+          <DialogHeader>
+            <DialogTitle className="neon-text">Create New Offer</DialogTitle>
+            <DialogDescription className="text-gray-400">
+              Add a promotional offer banner to display on the homepage
+            </DialogDescription>
+          </DialogHeader>
+          <form
+            onSubmit={addOfferForm.handleSubmit((data) => addOfferMutation.mutate(data))}
+            className="space-y-4"
+          >
+            <div>
+              <Label htmlFor="title" className="text-gray-300">
+                Offer Title
+              </Label>
+              <Input
+                id="title"
+                {...addOfferForm.register("title")}
+                className="bg-black/50 border-purple-500/30 text-white"
+                placeholder="e.g., First-time buyers get a FREE ROOM!"
+                data-testid="input-offer-title"
+                required
+              />
+            </div>
+            <div>
+              <Label htmlFor="description" className="text-gray-300">
+                Description
+              </Label>
+              <Textarea
+                id="description"
+                {...addOfferForm.register("description")}
+                className="bg-black/50 border-purple-500/30 text-white"
+                placeholder="Brief description of the offer"
+                data-testid="textarea-offer-description"
+                required
+              />
+            </div>
+            <div className="flex items-center gap-4">
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="enabled"
+                  checked={addOfferForm.watch("enabled")}
+                  onCheckedChange={(checked) =>
+                    addOfferForm.setValue("enabled", checked as boolean)
+                  }
+                  data-testid="checkbox-offer-enabled"
+                />
+                <Label htmlFor="enabled" className="text-gray-300">
+                  Enabled
+                </Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="freeRoomFirstOrder"
+                  checked={addOfferForm.watch("freeRoomFirstOrder")}
+                  onCheckedChange={(checked) =>
+                    addOfferForm.setValue("freeRoomFirstOrder", checked as boolean)
+                  }
+                  data-testid="checkbox-free-room"
+                />
+                <Label htmlFor="freeRoomFirstOrder" className="text-gray-300">
+                  Free Room on First Order
+                </Label>
+              </div>
+            </div>
+            <div>
+              <Label htmlFor="expiryDate" className="text-gray-300">
+                Expiry Date (optional)
+              </Label>
+              <Input
+                id="expiryDate"
+                type="datetime-local"
+                {...addOfferForm.register("expiryDate")}
+                className="bg-black/50 border-purple-500/30 text-white"
+                data-testid="input-offer-expiry"
+              />
+            </div>
+            <DialogFooter>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setShowAddDialog(false)}
+                data-testid="button-cancel-add-offer"
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                disabled={addOfferMutation.isPending}
+                className="bg-gradient-to-r from-purple-500 to-pink-500"
+                data-testid="button-submit-offer"
+              >
+                {addOfferMutation.isPending ? "Creating..." : "Create Offer"}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
+        <DialogContent className="bg-black border-purple-500/30 max-w-md">
+          <DialogHeader>
+            <DialogTitle className="neon-text">Edit Offer</DialogTitle>
+            <DialogDescription className="text-gray-400">
+              Update the promotional offer details
+            </DialogDescription>
+          </DialogHeader>
+          <form
+            onSubmit={editOfferForm.handleSubmit((data) => editOfferMutation.mutate(data))}
+            className="space-y-4"
+          >
+            <div>
+              <Label htmlFor="edit-title" className="text-gray-300">
+                Offer Title
+              </Label>
+              <Input
+                id="edit-title"
+                {...editOfferForm.register("title")}
+                className="bg-black/50 border-purple-500/30 text-white"
+                placeholder="e.g., First-time buyers get a FREE ROOM!"
+                data-testid="input-edit-offer-title"
+                required
+              />
+            </div>
+            <div>
+              <Label htmlFor="edit-description" className="text-gray-300">
+                Description
+              </Label>
+              <Textarea
+                id="edit-description"
+                {...editOfferForm.register("description")}
+                className="bg-black/50 border-purple-500/30 text-white"
+                placeholder="Brief description of the offer"
+                data-testid="textarea-edit-offer-description"
+                required
+              />
+            </div>
+            <div className="flex items-center gap-4">
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="edit-enabled"
+                  checked={editOfferForm.watch("enabled")}
+                  onCheckedChange={(checked) =>
+                    editOfferForm.setValue("enabled", checked as boolean)
+                  }
+                  data-testid="checkbox-edit-offer-enabled"
+                />
+                <Label htmlFor="edit-enabled" className="text-gray-300">
+                  Enabled
+                </Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="edit-freeRoomFirstOrder"
+                  checked={editOfferForm.watch("freeRoomFirstOrder")}
+                  onCheckedChange={(checked) =>
+                    editOfferForm.setValue("freeRoomFirstOrder", checked as boolean)
+                  }
+                  data-testid="checkbox-edit-free-room"
+                />
+                <Label htmlFor="edit-freeRoomFirstOrder" className="text-gray-300">
+                  Free Room on First Order
+                </Label>
+              </div>
+            </div>
+            <div>
+              <Label htmlFor="edit-expiryDate" className="text-gray-300">
+                Expiry Date (optional)
+              </Label>
+              <Input
+                id="edit-expiryDate"
+                type="datetime-local"
+                {...editOfferForm.register("expiryDate")}
+                className="bg-black/50 border-purple-500/30 text-white"
+                data-testid="input-edit-offer-expiry"
+              />
+            </div>
+            <DialogFooter>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setShowEditDialog(false)}
+                data-testid="button-cancel-edit-offer"
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                disabled={editOfferMutation.isPending}
+                className="bg-gradient-to-r from-purple-500 to-pink-500"
+                data-testid="button-update-offer"
+              >
+                {editOfferMutation.isPending ? "Updating..." : "Update Offer"}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent className="bg-black border-purple-500/30">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="neon-text">Delete Offer</AlertDialogTitle>
+            <AlertDialogDescription className="text-gray-400">
+              Are you sure you want to delete "{selectedOffer?.title}"? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel
+              className="bg-black/50 border-purple-500/30"
+              data-testid="button-cancel-delete-offer"
+            >
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => selectedOffer && deleteOfferMutation.mutate(selectedOffer.id)}
+              disabled={deleteOfferMutation.isPending}
+              className="bg-red-500 hover:bg-red-600"
+              data-testid="button-confirm-delete-offer"
+            >
+              {deleteOfferMutation.isPending ? "Deleting..." : "Delete"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

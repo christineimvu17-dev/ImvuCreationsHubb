@@ -1,13 +1,15 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Link } from "wouter";
-import { ShoppingBag, Users, Zap } from "lucide-react";
-import { SiDiscord } from "react-icons/si";
+import { ShoppingBag, Users, Zap, Shield, Clock, Star, CreditCard, CheckCircle } from "lucide-react";
+import { SiDiscord, SiPaypal, SiCashapp, SiBinance, SiWise } from "react-icons/si";
 import HowItWorks from "@/components/HowItWorks";
+import { OfferBanner } from "@/components/OfferBanner";
 
 export default function Home() {
   return (
     <div className="min-h-screen">
+      <OfferBanner />
       <section
         className="relative flex items-center justify-center min-h-[600px] overflow-hidden"
         style={{
@@ -121,6 +123,108 @@ export default function Home() {
               Browse Products
             </Button>
           </Link>
+        </div>
+      </section>
+
+      <section className="py-16 bg-gradient-to-b from-background to-card/30">
+        <div className="container mx-auto px-4">
+          <h2 className="text-3xl md:text-4xl font-bold text-center mb-4 neon-text" style={{ fontFamily: 'Orbitron' }}>
+            Why Choose Us?
+          </h2>
+          <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
+            We're committed to providing the best IMVU shopping experience
+          </p>
+
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
+            <div className="flex flex-col items-center p-4 rounded-xl bg-card/50 border border-purple-500/20 hover-elevate transition-all">
+              <div className="w-12 h-12 rounded-full bg-purple-500/20 flex items-center justify-center mb-3">
+                <Clock className="w-6 h-6 text-purple-400" />
+              </div>
+              <h4 className="font-semibold text-sm text-center">Fast Delivery</h4>
+              <p className="text-xs text-muted-foreground text-center mt-1">Instant to 24hrs</p>
+            </div>
+
+            <div className="flex flex-col items-center p-4 rounded-xl bg-card/50 border border-blue-500/20 hover-elevate transition-all">
+              <div className="w-12 h-12 rounded-full bg-blue-500/20 flex items-center justify-center mb-3">
+                <Shield className="w-6 h-6 text-blue-400" />
+              </div>
+              <h4 className="font-semibold text-sm text-center">Secure Payment</h4>
+              <p className="text-xs text-muted-foreground text-center mt-1">100% Protected</p>
+            </div>
+
+            <div className="flex flex-col items-center p-4 rounded-xl bg-card/50 border border-yellow-500/20 hover-elevate transition-all">
+              <div className="w-12 h-12 rounded-full bg-yellow-500/20 flex items-center justify-center mb-3">
+                <Star className="w-6 h-6 text-yellow-400" />
+              </div>
+              <h4 className="font-semibold text-sm text-center">Trusted Seller</h4>
+              <p className="text-xs text-muted-foreground text-center mt-1">500+ Happy Customers</p>
+            </div>
+
+            <div className="flex flex-col items-center p-4 rounded-xl bg-card/50 border border-green-500/20 hover-elevate transition-all">
+              <div className="w-12 h-12 rounded-full bg-green-500/20 flex items-center justify-center mb-3">
+                <CheckCircle className="w-6 h-6 text-green-400" />
+              </div>
+              <h4 className="font-semibold text-sm text-center">Delivery Guarantee</h4>
+              <p className="text-xs text-muted-foreground text-center mt-1">Or Money Back</p>
+            </div>
+
+            <div className="flex flex-col items-center p-4 rounded-xl bg-card/50 border border-pink-500/20 hover-elevate transition-all col-span-2 md:col-span-1">
+              <div className="w-12 h-12 rounded-full bg-pink-500/20 flex items-center justify-center mb-3">
+                <Users className="w-6 h-6 text-pink-400" />
+              </div>
+              <h4 className="font-semibold text-sm text-center">24/7 Support</h4>
+              <p className="text-xs text-muted-foreground text-center mt-1">Always Here to Help</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="py-16 bg-card/30">
+        <div className="container mx-auto px-4">
+          <h2 className="text-2xl md:text-3xl font-bold text-center mb-4" style={{ fontFamily: 'Orbitron' }}>
+            Accepted Payment Methods
+          </h2>
+          <p className="text-center text-muted-foreground mb-10">
+            We accept multiple secure payment options for your convenience
+          </p>
+
+          <div className="flex flex-wrap justify-center items-center gap-6 md:gap-10">
+            <div className="flex flex-col items-center gap-2 p-4 rounded-xl bg-card/50 border border-border/50 hover-elevate transition-all min-w-[100px]">
+              <SiPaypal className="w-10 h-10 text-[#00457C]" />
+              <span className="text-sm font-medium">PayPal</span>
+            </div>
+
+            <div className="flex flex-col items-center gap-2 p-4 rounded-xl bg-card/50 border border-border/50 hover-elevate transition-all min-w-[100px]">
+              <SiCashapp className="w-10 h-10 text-[#00C853]" />
+              <span className="text-sm font-medium">CashApp</span>
+            </div>
+
+            <div className="flex flex-col items-center gap-2 p-4 rounded-xl bg-card/50 border border-border/50 hover-elevate transition-all min-w-[100px]">
+              <SiBinance className="w-10 h-10 text-[#F0B90B]" />
+              <span className="text-sm font-medium">Binance</span>
+            </div>
+
+            <div className="flex flex-col items-center gap-2 p-4 rounded-xl bg-card/50 border border-border/50 hover-elevate transition-all min-w-[100px]">
+              <SiWise className="w-10 h-10 text-[#9FE870]" />
+              <span className="text-sm font-medium">Wise</span>
+            </div>
+
+            <div className="flex flex-col items-center gap-2 p-4 rounded-xl bg-card/50 border border-border/50 hover-elevate transition-all min-w-[100px]">
+              <CreditCard className="w-10 h-10 text-purple-400" />
+              <span className="text-sm font-medium">Gift Cards</span>
+            </div>
+
+            <div className="flex flex-col items-center gap-2 p-4 rounded-xl bg-card/50 border border-border/50 hover-elevate transition-all min-w-[100px]">
+              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-orange-500 to-pink-500 flex items-center justify-center text-white font-bold text-sm">
+                UPI
+              </div>
+              <span className="text-sm font-medium">UPI</span>
+            </div>
+          </div>
+
+          <p className="text-center text-sm text-muted-foreground mt-8">
+            All transactions are processed securely. Need help? Contact us on Discord!
+          </p>
         </div>
       </section>
     </div>
